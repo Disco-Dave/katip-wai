@@ -4,7 +4,6 @@
 {-# LANGUAGE StrictData #-}
 
 module Katip.Wai (
-  Request (..),
   ApplicationT,
   runApplication,
   MiddlewareT,
@@ -23,10 +22,12 @@ import qualified Data.UUID as UUID
 import qualified Data.UUID.V4 as UUID.V4
 import qualified Katip
 import Network.HTTP.Types (Method)
+import Network.HTTP.Types.Status (Status)
 import Network.HTTP.Types.URI (Query, queryToQueryText)
 import Network.HTTP.Types.Version (HttpVersion)
 import Network.Socket (SockAddr)
 import qualified Network.Wai as Wai
+import qualified System.Clock as Clock
 
 data Request = Request
   { requestId :: UUID
@@ -43,8 +44,8 @@ data Request = Request
   , requestHeaderRange :: Maybe ByteString
   }
 
-toKeyValues :: Aeson.KeyValue kv => Request -> [kv]
-toKeyValues Request{..} =
+requestToKeyValues :: Aeson.KeyValue kv => Request -> [kv]
+requestToKeyValues Request{..} =
   let toText = decodeUtf8With lenientDecode
       headers =
         Aeson.object
@@ -65,8 +66,8 @@ toKeyValues Request{..} =
       ]
 
 instance Aeson.ToJSON Request where
-  toJSON = Aeson.object . toKeyValues
-  toEncoding = Aeson.pairs . mconcat . toKeyValues
+  toJSON = Aeson.object . requestToKeyValues
+  toEncoding = Aeson.pairs . mconcat . requestToKeyValues
 
 toLoggableRequest :: Wai.Request -> IO Request
 toLoggableRequest request = do
@@ -87,6 +88,21 @@ toLoggableRequest request = do
       , requestHeaderRange = Wai.requestHeaderRange request
       }
 
+data Response = Response
+  { responseElapsedTime :: Clock.TimeSpec
+  , responseStatus :: Status
+  }
+
+responseToKeyValues :: Aeson.KeyValue kv => Response -> [kv]
+responseToKeyValues Response{..} =
+  [ "elapsedTimeInNanoSeconds" .= Clock.toNanoSecs responseElapsedTime
+  , "status" .= fromEnum responseStatus
+  ]
+
+instance Aeson.ToJSON Response where
+  toJSON = Aeson.object . responseToKeyValues
+  toEncoding = Aeson.pairs . mconcat . responseToKeyValues
+
 type ApplicationT m = Wai.Request -> (Wai.Response -> m Wai.ResponseReceived) -> m Wai.ResponseReceived
 
 runApplication :: MonadIO m => (forall a. m a -> IO a) -> ApplicationT m -> Wai.Application
@@ -95,8 +111,29 @@ runApplication toIO application request send =
 
 type MiddlewareT m = ApplicationT m -> ApplicationT m
 
-middleware :: Katip.KatipContext m => MiddlewareT m
-middleware application request send = do
+withLoggedResponse ::
+  Katip.KatipContext m =>
+  Katip.Severity ->
+  Clock.TimeSpec ->
+  (Wai.Response -> m Wai.ResponseReceived) ->
+  Wai.Response ->
+  m Wai.ResponseReceived
+withLoggedResponse severity start send response = do
+  responseReceived <- send response
+  end <- liftIO $ Clock.getTime Clock.Monotonic
+  let loggableResponse =
+        Response
+          { responseElapsedTime = end `Clock.diffTimeSpec` start
+          , responseStatus = Wai.responseStatus response
+          }
+  Katip.katipAddContext (Katip.sl "response" loggableResponse) $ do
+    Katip.logFM severity "Response sent"
+    pure responseReceived
+
+middleware :: Katip.KatipContext m => Katip.Severity -> MiddlewareT m
+middleware severity application request send = do
+  start <- liftIO $ Clock.getTime Clock.Monotonic
   loggableRequest <- liftIO $ toLoggableRequest request
-  Katip.katipAddContext (Katip.sl "request" loggableRequest) $
-    application request send
+  Katip.katipAddContext (Katip.sl "request" loggableRequest) $ do
+    Katip.logFM severity "Request received"
+    application request (withLoggedResponse severity start send)

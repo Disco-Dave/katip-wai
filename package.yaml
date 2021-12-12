@@ -32,11 +32,12 @@ dependencies:
   - base >= 4.7 && < 5
   - aeson
   - bytestring
+  - clock
   - http-types
   - katip
+  - network
   - text
   - uuid
-  - network
   - wai
 
 library:
