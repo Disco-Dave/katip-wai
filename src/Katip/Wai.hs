@@ -6,8 +6,9 @@
 module Katip.Wai (
   Request (..),
   ApplicationT,
-  middleware,
   runApplication,
+  MiddlewareT,
+  middleware,
 ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -21,6 +22,7 @@ import Data.UUID (UUID)
 import qualified Data.UUID as UUID
 import qualified Data.UUID.V4 as UUID.V4
 import qualified Katip
+import Network.HTTP.Types (Method)
 import Network.HTTP.Types.URI (Query, queryToQueryText)
 import Network.HTTP.Types.Version (HttpVersion)
 import Network.Socket (SockAddr)
@@ -31,6 +33,7 @@ data Request = Request
   , requestHttpVersion :: HttpVersion
   , requestRemoteHost :: SockAddr
   , requestIsSecure :: Bool
+  , requestMethod :: Method
   , requestPathInfo :: [Text]
   , requestQueryString :: Query
   , requestBodyLength :: Wai.RequestBodyLength
@@ -42,18 +45,19 @@ data Request = Request
 
 toKeyValues :: Aeson.KeyValue kv => Request -> [kv]
 toKeyValues Request{..} =
-  let headers =
-        let toText = fmap (decodeUtf8With lenientDecode)
-         in Aeson.object
-              [ "host" .= toText requestHeaderHost
-              , "referer" .= toText requestHeaderReferer
-              , "userAgent" .= toText requestHeaderUserAgent
-              , "range" .= toText requestHeaderRange
-              ]
+  let toText = decodeUtf8With lenientDecode
+      headers =
+        Aeson.object
+          [ "host" .= fmap toText requestHeaderHost
+          , "referer" .= fmap toText requestHeaderReferer
+          , "userAgent" .= fmap toText requestHeaderUserAgent
+          , "range" .= fmap toText requestHeaderRange
+          ]
    in [ "id" .= UUID.toText requestId
       , "httpVersion" .= show requestHttpVersion
       , "remoteHost" .= show requestRemoteHost
       , "isSecure" .= requestIsSecure
+      , "method" .= toText requestMethod
       , "path" .= requestPathInfo
       , "queryString" .= queryToQueryText requestQueryString
       , "bodyLength" .= show requestBodyLength
@@ -73,6 +77,7 @@ toLoggableRequest request = do
       , requestHttpVersion = Wai.httpVersion request
       , requestRemoteHost = Wai.remoteHost request
       , requestIsSecure = Wai.isSecure request
+      , requestMethod = Wai.requestMethod request
       , requestPathInfo = Wai.pathInfo request
       , requestQueryString = Wai.queryString request
       , requestBodyLength = Wai.requestBodyLength request
@@ -84,12 +89,14 @@ toLoggableRequest request = do
 
 type ApplicationT m = Wai.Request -> (Wai.Response -> m Wai.ResponseReceived) -> m Wai.ResponseReceived
 
-middleware :: Katip.KatipContext m => ApplicationT m -> ApplicationT m
+runApplication :: MonadIO m => (forall a. m a -> IO a) -> ApplicationT m -> Wai.Application
+runApplication toIO application request send =
+  toIO $ application request (liftIO . send)
+
+type MiddlewareT m = ApplicationT m -> ApplicationT m
+
+middleware :: Katip.KatipContext m => MiddlewareT m
 middleware application request send = do
   loggableRequest <- liftIO $ toLoggableRequest request
   Katip.katipAddContext (Katip.sl "request" loggableRequest) $
     application request send
-
-runApplication :: MonadIO m => (forall a. m a -> IO a) -> ApplicationT m -> Wai.Application
-runApplication toIO application request send =
-  toIO $ application request (liftIO . send)
