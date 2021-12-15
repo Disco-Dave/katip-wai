@@ -33,7 +33,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
   build-depends:
       aeson
-    , base >=4.7 && <5
+    , base >=4.7
     , bytestring
     , clock
     , http-types
