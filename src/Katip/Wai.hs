@@ -133,7 +133,7 @@ withLoggedResponse severity start send response = do
     Katip.logFM severity "Response sent"
     pure responseReceived
 
--- | Logs the request, response, and ellapsed time in Katip's context
+-- | Logs the request, response, and elapsed time in Katip's context
 middleware :: Katip.KatipContext m => Katip.Severity -> MiddlewareT m
 middleware severity application request send = do
   start <- liftIO $ Clock.getTime Clock.Monotonic
