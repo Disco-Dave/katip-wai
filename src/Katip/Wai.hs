@@ -103,12 +103,15 @@ instance Aeson.ToJSON Response where
   toJSON = Aeson.object . responseToKeyValues
   toEncoding = Aeson.pairs . mconcat . responseToKeyValues
 
+-- | Just like 'Wai.Application' except it runs in @m@ instead of 'IO'
 type ApplicationT m = Wai.Request -> (Wai.Response -> m Wai.ResponseReceived) -> m Wai.ResponseReceived
 
+-- | Converts an 'ApplicationT' to a normal 'Wai.Application'
 runApplication :: MonadIO m => (forall a. m a -> IO a) -> ApplicationT m -> Wai.Application
 runApplication toIO application request send =
   toIO $ application request (liftIO . send)
 
+-- | Just like 'Wai.Middleware' except it runs in @m@ instead of 'IO'
 type MiddlewareT m = ApplicationT m -> ApplicationT m
 
 withLoggedResponse ::
@@ -130,6 +133,7 @@ withLoggedResponse severity start send response = do
     Katip.logFM severity "Response sent"
     pure responseReceived
 
+-- | Logs the request, response, and ellapsed time in Katip's context
 middleware :: Katip.KatipContext m => Katip.Severity -> MiddlewareT m
 middleware severity application request send = do
   start <- liftIO $ Clock.getTime Clock.Monotonic
