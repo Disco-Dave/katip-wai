@@ -32,14 +32,14 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
   build-depends:
-      aeson
+      aeson >=0.6
     , base >=4.7
-    , bytestring
-    , clock
-    , http-types
-    , katip
-    , network
-    , text
-    , uuid
-    , wai
+    , bytestring >=0.9
+    , clock >=0.8
+    , http-types >=0.12
+    , katip >=0.8
+    , network >=3.0
+    , text >=0.11
+    , uuid >=1.3
+    , wai >=3.0
   default-language: Haskell2010
