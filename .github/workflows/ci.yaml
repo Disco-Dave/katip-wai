@@ -1,0 +1,46 @@
+name: "ci"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  cabal:
+    name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-latest"]
+        cabal: ["3.6"]
+        ghc:
+          - "8.8.4"
+          - "8.10.7"
+          - "9.0.1"
+          - "9.2.1"
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ".github/actions/cabal-build.yaml"
+        name: Build
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
+
+  stack:
+    name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-latest"]
+        stack: ["2.7.3"]
+        ghc: ["8.10.7"]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ".github/actions/stack-build.yaml"
+        name: Build
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          stack-version: ${{ matrix.stack }}
