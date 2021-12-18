@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: "../.github/actions/cabal-build.yaml"
+      - uses: "./.github/actions/cabal-build"
         name: Build
         with:
           ghc-version: ${{ matrix.ghc }}
@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: "../.github/actions/stack-build.yaml"
+      - uses: "./.github/actions/stack-build"
         name: Build
         with:
           ghc-version: ${{ matrix.ghc }}
