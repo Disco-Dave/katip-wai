@@ -46,5 +46,6 @@ runs:
         cabal build all
 
     - name: Test
+      shell: bash
       run: |
         cabal test all
