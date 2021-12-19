@@ -48,6 +48,7 @@ test-suite katip-wai-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      DebugApplication
       DebugScribe
       Paths_katip_wai
   hs-source-dirs:
@@ -60,6 +61,7 @@ test-suite katip-wai-test
     , bytestring >=0.9
     , clock >=0.8
     , hspec >=2.7
+    , http-client >=0.6
     , http-types >=0.12
     , katip >=0.8
     , katip-wai

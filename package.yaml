@@ -57,4 +57,4 @@ tests:
       - hspec >= 2.7
       - stm >= 2.5
       - warp >= 3.3
-
+      - http-client >= 0.6
