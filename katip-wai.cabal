@@ -46,14 +46,18 @@ library
 
 test-suite katip-wai-test
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Main.hs
   other-modules:
       DebugApplication
       DebugScribe
+      Katip.WaiSpec
+      Spec
       Paths_katip_wai
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-tool-depends:
+      hspec-discover:hspec-discover ==2.*
   build-depends:
       aeson >=0.6
     , async >=2.0
