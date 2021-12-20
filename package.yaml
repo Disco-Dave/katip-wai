@@ -56,7 +56,8 @@ tests:
     dependencies:
       - katip-wai
       - async >= 2.0
+      - containers >= 0.6
       - hspec >= 2.7
+      - http-client >= 0.6
       - stm >= 2.5
       - warp >= 3.3
-      - http-client >= 0.6

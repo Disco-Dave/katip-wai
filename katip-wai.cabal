@@ -51,6 +51,7 @@ test-suite katip-wai-test
       DebugApplication
       DebugScribe
       Katip.WaiSpec
+      LogEntry
       Spec
       Paths_katip_wai
   hs-source-dirs:
@@ -64,6 +65,7 @@ test-suite katip-wai-test
     , base >=4.7
     , bytestring >=0.9
     , clock >=0.8
+    , containers >=0.6
     , hspec >=2.7
     , http-client >=0.6
     , http-types >=0.12
