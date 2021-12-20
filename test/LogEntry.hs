@@ -18,6 +18,7 @@ import Data.Text (Text)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import GHC.Natural (Natural)
+import qualified Katip
 
 data Headers = Headers
   { host :: Maybe Text
@@ -63,12 +64,13 @@ instance Aeson.FromJSON LogData
 data LogEntry = LogEntry
   { logMessage :: Text
   , logData :: LogData
+  , logSeverity :: Katip.Severity
   }
   deriving (Show)
 
 instance Aeson.FromJSON LogEntry where
   parseJSON = Aeson.withObject "LogEntry" $ \obj ->
-    LogEntry <$> (obj .: "msg") <*> (obj .: "data")
+    LogEntry <$> (obj .: "msg") <*> (obj .: "data") <*> (obj .: "sev")
 
 toLogEntry :: Aeson.Value -> IO LogEntry
 toLogEntry value =

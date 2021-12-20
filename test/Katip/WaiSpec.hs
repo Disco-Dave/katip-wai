@@ -62,6 +62,7 @@ spec = describe "middleware" $ do
                     { response = Nothing
                     , request = Just expectedRequest
                     }
+              , logSeverity = severity
               }
           expectedLog2 =
             LogEntry
@@ -71,6 +72,7 @@ spec = describe "middleware" $ do
                     { response = Nothing
                     , request = Just expectedRequest
                     }
+              , logSeverity = severity
               }
           expectedLog3 =
             LogEntry
@@ -85,6 +87,7 @@ spec = describe "middleware" $ do
                             }
                     , LogEntry.request = Just expectedRequest
                     }
+              , logSeverity = severity
               }
 
       log1 `shouldSatisfy` LogEntry.isMostlySameAs expectedLog1
