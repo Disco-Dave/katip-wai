@@ -1,22 +1,23 @@
-cabal-version: 1.12
+cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
---
--- see: https://github.com/sol/hpack
+name: katip-wai
+version: 0.1.0.0
 
-name:           katip-wai
-version:        0.1.0.0
-synopsis:       WAI middleware for logging request and response info through katip.
-description:    WAI middleware for logging request and response info through katip. Please see the README on GitHub at <https://github.com/Disco-Dave/katip-wai#readme>
-category:       Web, Logging
-homepage:       https://github.com/Disco-Dave/katip-wai#readme
-bug-reports:    https://github.com/Disco-Dave/katip-wai/issues
-author:         David Burkett
-maintainer:     David Burkett
-copyright:      2021 David Burkett
-license:        BSD3
-license-file:   LICENSE
-build-type:     Simple
+synopsis: WAI middleware for logging request and response info through katip.
+description: WAI middleware for logging request and response info through katip. Please see the README on GitHub at <https://github.com/Disco-Dave/katip-wai#readme>
+
+build-type: Simple
+category: Web, Logging
+homepage: https://github.com/Disco-Dave/katip-wai#readme
+bug-reports:https://github.com/Disco-Dave/katip-wai/issues
+
+author: David Burkett
+maintainer: David Burkett
+
+copyright: 2021 David Burkett
+license: BSD-3-Clause
+license-file: LICENSE
+
 extra-source-files:
     README.md
     ChangeLog.md
@@ -25,30 +26,60 @@ source-repository head
   type: git
   location: https://github.com/Disco-Dave/katip-wai
 
-library
-  exposed-modules:
-      Katip.Wai
-  other-modules:
-      Paths_katip_wai
-  hs-source-dirs:
-      src
-  ghc-options: -Weverything -Wno-implicit-prelude -Wno-safe -Wno-unsafe -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-deriving-strategies
+common shared
+  default-language: Haskell2010
+
+  ghc-options:
+    -Weverything 
+    -Wno-implicit-prelude 
+    -Wno-safe 
+    -Wno-unsafe 
+    -Wno-missing-exported-signatures 
+    -Wno-missing-import-lists 
+    -Wno-missed-specialisations 
+    -Wno-all-missed-specialisations 
+    -Wno-missing-local-signatures 
+    -Wno-monomorphism-restriction 
+    -Wno-missing-deriving-strategies
+
+  if impl(ghc >= 8.10)
+    ghc-options:
+      -Wno-missing-safe-haskell-mode
+      -Wno-prepositive-qualified-module
+
+  if impl(ghc >= 9.2)
+    ghc-options:
+      -Wno-missing-kind-signatures
+
   build-depends:
-      aeson >=0.6
+    , aeson >=0.6
     , base >=4.7
     , bytestring >=0.9
-    , clock >=0.8
     , http-types >=0.12
     , katip >=0.8
-    , network >=3.0
     , text >=0.11
     , uuid >=1.3
     , wai >=3.0
-  default-language: Haskell2010
+
+library
+  import: shared
+
+  hs-source-dirs: src
+
+  exposed-modules:
+      Katip.Wai
+
+  build-depends:
+    , clock >=0.8
+    , network >=3.0
 
 test-suite katip-wai-test
+  import: shared
+
   type: exitcode-stdio-1.0
   main-is: Main.hs
+  hs-source-dirs: test
+
   other-modules:
       DebugApplication
       DebugScribe
@@ -56,27 +87,21 @@ test-suite katip-wai-test
       LogEntry
       Spec
       Paths_katip_wai
-  hs-source-dirs:
-      test
-  ghc-options: -Weverything -Wno-implicit-prelude -Wno-safe -Wno-unsafe -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-deriving-strategies -threaded -rtsopts -with-rtsopts=-N -Wno-unused-packages
+
   build-tool-depends:
-      hspec-discover:hspec-discover ==2.*
+    , hspec-discover:hspec-discover ==2.*
+
   build-depends:
-      aeson >=0.6
-    , async >=2.0
-    , base >=4.7
-    , bytestring >=0.9
-    , clock >=0.8
-    , containers >=0.6
-    , hspec >=2.7
-    , http-client >=0.6
-    , http-types >=0.12
-    , katip >=0.8
     , katip-wai
-    , network >=3.0
-    , stm >=2.5
-    , text >=0.11
-    , uuid >=1.3
-    , wai >=3.0
-    , warp >=3.3
-  default-language: Haskell2010
+    , async >= 2.0
+    , containers >= 0.6
+    , hspec >= 2.7
+    , http-client >= 0.6
+    , stm >= 2.5
+
+  if impl(ghc >= 9.2)
+    build-depends:
+      , warp >= 3.3.18
+  else
+    build-depends:
+      , warp >= 3.3
