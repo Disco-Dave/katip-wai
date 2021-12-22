@@ -3,11 +3,50 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StrictData #-}
 
+{- |
+Description: Middleware for logging request and response info through Katip.
+
+Add information about 'Wai.Request', 'Wai.response', and the elapsed time to Katip's 'Katip.LogContexts'.
+
+The following is added to the context as \"request\":
+
+  - \"id\": Uniquely generated string that can be used to correlate logs to a single request.
+
+  - \"httpVersion\": Version of the request.
+
+  - \"remoteHost\": Address the request came from.
+
+  - \"isSecure\": True if the request was made over an SSL connection, otherwise false.
+
+  - \"method\": HTTP Method used for the request, ie. GET, POST, PUT, PATCH, DELETE, etc.
+
+  - \"path\": URL without a hostname, port, or querystring.
+
+  - \"queryString\": Query string of the request if one was sent.
+
+  - \"bodyLength\": Size of the body in the request.
+
+  - \"headers.host\": Value of the \"Host\" header.
+
+  - \"headers.referer\": Value of the \"Referer\" header.
+
+  - \"headers.userAgent\": Value of the \"User-Agent\" header.
+
+  - \"headers.range\": Value of the \"Range\" header.
+
+The following is added to the context as \"response\":
+
+  - \"elapsedTimeInNanoSeconds\": Amount of time from receiving the request to sending the response in nano seconds.
+
+  - \"status\": The status of the response, ie. 200, 202, 204, 400, 404, 500, etc.
+-}
 module Katip.Wai (
-  ApplicationT,
-  runApplication,
-  MiddlewareT,
   middleware,
+
+  -- * Helpers for threading Katip's Context throughout the entire 'Wai.Application`
+  ApplicationT,
+  MiddlewareT,
+  runApplication,
 ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -15,6 +54,7 @@ import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString (ByteString)
 import Data.Text (Text)
+import qualified Data.Text as Text
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Data.UUID (UUID)
@@ -55,11 +95,11 @@ requestToKeyValues Request{..} =
           , "range" .= fmap toText requestHeaderRange
           ]
    in [ "id" .= UUID.toText requestId
-      , "httpVersion" .= show requestHttpVersion
+      , "Version" .= show requestHttpVersion
       , "remoteHost" .= show requestRemoteHost
       , "isSecure" .= requestIsSecure
       , "method" .= toText requestMethod
-      , "path" .= requestPathInfo
+      , "path" .= Text.intercalate "/" requestPathInfo
       , "queryString" .= queryToQueryText requestQueryString
       , "bodyLength" .= show requestBodyLength
       , "headers" .= headers

@@ -3,7 +3,7 @@ version: 0.1.0.0
 github: "Disco-Dave/katip-wai"
 license: BSD3
 author: "David Burkett"
-maintainer: "david@davidburkett.xyz"
+maintainer: "David Burkett"
 copyright: "2021 David Burkett"
 
 extra-source-files:
@@ -11,13 +11,13 @@ extra-source-files:
   - ChangeLog.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis: WAI middleware for logging request and response info through katip.
+category: Web, Logging
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description: Please see the README on GitHub at <https://github.com/Disco-Dave/katip-wai#readme>
+description: WAI middleware for logging request and response info through katip. Please see the README on GitHub at <https://github.com/Disco-Dave/katip-wai#readme>
 
 ghc-options:
   - -Wall
