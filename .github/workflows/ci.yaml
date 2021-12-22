@@ -25,7 +25,8 @@ jobs:
       - name: Fix cabal project for 9.2.1
         if: ${{ matrix.ghc == '9.2.1' }}
         run: |
-          cat cabal.project ghc-9.2.1.cabal.project > cabal.project
+          cp cabal.project cabal.project.backup 
+          cat cabal.project.backup ghc-9.2.1.cabal.project > cabal.project 
 
       - uses: "./.github/actions/cabal-build"
         name: Build
