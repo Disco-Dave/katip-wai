@@ -22,6 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Fix cabal project for 9.2.1
+        if: ${{ matrix.ghc == '9.2.1' }}
+        run: |
+          cat cabal.project ghc-9.2.1.cabal.project > cabal.project
+
       - uses: "./.github/actions/cabal-build"
         name: Build
         with:
@@ -38,11 +43,6 @@ jobs:
         ghc: ["8.10.7"]
     steps:
       - uses: actions/checkout@v2
-
-      - name: Fix cabal project
-        if: ${{ matrix.ghc == '9.2.1' }}
-        run: |
-          cat cabal.project ghc-9.2.1.cabal.project > cabal.project
 
       - uses: "./.github/actions/stack-build"
         name: Build
