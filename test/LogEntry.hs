@@ -36,7 +36,7 @@ data Request = Request
   , remoteHost :: Text
   , isSecure :: Bool
   , method :: Text
-  , path :: [Text]
+  , path :: Text
   , queryString :: [(Text, Maybe Text)]
   , bodyLength :: Text
   , headers :: Headers

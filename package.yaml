@@ -20,13 +20,19 @@ category: Web, Logging
 description: WAI middleware for logging request and response info through katip. Please see the README on GitHub at <https://github.com/Disco-Dave/katip-wai#readme>
 
 ghc-options:
-  - -Wall
-  - -Wcompat
-  - -Widentities
-  - -Wincomplete-record-updates
-  - -Wincomplete-uni-patterns
-  - -Wpartial-fields
-  - -Wredundant-constraints
+  - -Weverything
+  - -Wno-implicit-prelude
+  - -Wno-safe
+  - -Wno-unsafe
+  - -Wno-missing-exported-signatures
+  - -Wno-missing-import-lists
+  - -Wno-missed-specialisations
+  - -Wno-all-missed-specialisations
+  - -Wno-missing-local-signatures
+  - -Wno-monomorphism-restriction
+  - -Wno-prepositive-qualified-module
+  - -Wno-missing-safe-haskell-mode
+  - -Wno-missing-deriving-strategies
 
 dependencies:
   - base >= 4.7
@@ -51,6 +57,7 @@ tests:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
+      - -Wno-unused-packages
     build-tools:
       - hspec-discover:hspec-discover == 2.*
     dependencies:

@@ -32,7 +32,7 @@ library
       Paths_katip_wai
   hs-source-dirs:
       src
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
+  ghc-options: -Weverything -Wno-implicit-prelude -Wno-safe -Wno-unsafe -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-deriving-strategies
   build-depends:
       aeson >=0.6
     , base >=4.7
@@ -58,7 +58,7 @@ test-suite katip-wai-test
       Paths_katip_wai
   hs-source-dirs:
       test
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Weverything -Wno-implicit-prelude -Wno-safe -Wno-unsafe -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-deriving-strategies -threaded -rtsopts -with-rtsopts=-N -Wno-unused-packages
   build-tool-depends:
       hspec-discover:hspec-discover ==2.*
   build-depends:

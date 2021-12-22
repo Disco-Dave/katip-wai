@@ -95,7 +95,7 @@ requestToKeyValues Request{..} =
           , "range" .= fmap toText requestHeaderRange
           ]
    in [ "id" .= UUID.toText requestId
-      , "Version" .= show requestHttpVersion
+      , "httpVersion" .= show requestHttpVersion
       , "remoteHost" .= show requestRemoteHost
       , "isSecure" .= requestIsSecure
       , "method" .= toText requestMethod
