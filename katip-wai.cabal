@@ -104,4 +104,4 @@ test-suite katip-wai-test
       , warp >= 3.3.18
   else
     build-depends:
-      , warp >= 3.3 && < 3.3.18
+      , warp
