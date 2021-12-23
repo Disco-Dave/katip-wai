@@ -86,7 +86,6 @@ test-suite katip-wai-test
       Katip.WaiSpec
       LogEntry
       Spec
-      Paths_katip_wai
 
   build-tool-depends:
     , hspec-discover:hspec-discover ==2.*

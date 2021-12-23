@@ -115,4 +115,4 @@ withDebugApplication severity useApp =
   withLogEnv $ \logEnv ->
     let toIO = runKatipContextT logEnv () "spec"
         app = runApplication toIO (mkApplication severity)
-     in Warp.withApplication (pure app) (useApp . coerce)
+     in Warp.testWithApplication (pure app) (useApp . coerce)
