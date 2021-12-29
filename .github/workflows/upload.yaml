@@ -24,7 +24,7 @@ jobs:
 
       - name: "Bundle the documentation"
         run: |
-          cabal haddock --builddir ./hackage-dist --haddock-for-hackage --hadock-options=--hyperlinked-source
+          cabal haddock --builddir ./hackage-dist --haddock-for-hackage --haddock-options=--hyperlinked-source
 
       - name: "Upload package to Hackage"
         run: |
