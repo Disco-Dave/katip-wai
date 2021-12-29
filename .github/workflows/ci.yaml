@@ -55,8 +55,49 @@ jobs:
 
   upload:
     name: "Publish to Hackage"
+    runs-on: "ubuntu-latest"
     if: github.event_name == 'release'
     needs:
       - cabal
       - stack
-    uses: Disco-Dave/katip-wai/.github/workflows/upload.yaml@main
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: haskell/actions/setup@v1
+        id: setup-haskell-cabal
+        name: Setup Haskell and Cabal
+        with:
+          ghc-version: "8.10.7"
+          cabal-version: "3.6"
+
+      - name: Freeze
+        run: |
+          cabal freeze
+
+      - uses: actions/cache@v2.1.3
+        name: Cache ~/.cabal/store
+        with:
+          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+          key: Linux-8.10.7-${{ hashFiles('cabal.project.freeze') }}
+
+      - name: "Bundle the package"
+        run: |
+          cabal sdist --builddir ./hackage-dist
+
+      - name: "Bundle the documentation"
+        run: |
+          cabal haddock --builddir ./hackage-dist --haddock-for-hackage --haddock-options=--hyperlinked-source
+
+      - name: "Upload package to Hackage"
+        env:
+          HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
+          HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
+        run: |
+          cabal upload -u $HACKAGE_USER -p $HACKAGE_PASSWORD ./hackage-dist/sdist/*.tar.gz 
+
+      - name: "Upload docs to Hackage"
+        env:
+          HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
+          HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
+        run: |
+          cabal upload -u $HACKAGE_USER -p $HACKAGE_PASSWORD -d ./hackage-dist/*-docs.tar.gz 

@@ -19,11 +19,6 @@ runs:
         ghc-version: ${{ inputs.ghc-version }}
         cabal-version: ${{ inputs.cabal-version }}
 
-    - name: Configure
-      shell: bash
-      run: |
-        cabal configure --enable-tests --enable-benchmarks --test-show-details=direct
-
     - name: Freeze
       shell: bash
       run: |
