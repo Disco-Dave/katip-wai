@@ -50,3 +50,11 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc }}
           stack-version: ${{ matrix.stack }}
+
+  upload:
+    name: "Publish to Hackage"
+    if: startsWith( github.ref, 'refs/tags/releases/')
+    needs:
+      - cabal
+      - stack
+    uses: Disco-Dave/katip-wai/.github/workflows/upload@main

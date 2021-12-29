@@ -1,0 +1,35 @@
+name: "upload"
+
+on: "workflow_call"
+
+jobs:
+  bundle_and_upload:
+    name: "Bundle/Upload to Hackage"
+    runs-on: "ubuntu-latest"
+    env:
+      HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
+      HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: haskell/actions/setup@v1
+        name: Setup Haskell and Cabal
+        with:
+          ghc-version: "8.10.7"
+          cabal-version: "3.6"
+
+      - name: "Bundle the package"
+        run: |
+          cabal sdist --builddir ./hackage-dist
+
+      - name: "Bundle the documentation"
+        run: |
+          cabal haddock --builddir ./hackage-dist --haddock-for-hackage --hadock-options=--hyperlinked-source
+
+      - name: "Upload package to Hackage"
+        run: |
+          cabal upload ./hackage-dist/sdist/*.tar.gz -u $HACKAGE_USER -p $HACKAGE_PASSWORD
+
+      - name: "Upload docs to Hackage"
+        run: |
+          cabal upload -d ./hackage-dist/*-docs.tar.gz -u $HACKAGE_USER -p $HACKAGE_PASSWORD
