@@ -57,4 +57,4 @@ jobs:
     needs:
       - cabal
       - stack
-    uses: Disco-Dave/katip-wai/.github/workflows/upload@main
+    uses: Disco-Dave/katip-wai/.github/workflows/upload.yaml@main
