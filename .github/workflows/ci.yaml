@@ -6,10 +6,7 @@ on:
   pull_request:
     branches: ["main"]
   release:
-    types: 
-      - created
-      - published
-      - released
+    types: ["published"]
 
 jobs:
   cabal:
