@@ -56,7 +56,6 @@ jobs:
   upload:
     name: "Publish to Hackage"
     runs-on: "ubuntu-latest"
-    if: github.event_name == 'release'
     needs:
       - cabal
       - stack
@@ -88,14 +87,32 @@ jobs:
         run: |
           cabal haddock --builddir ./hackage-dist --haddock-for-hackage --haddock-options=--hyperlinked-source
 
-      - name: "Upload package to Hackage"
+      - name: "Publish package to Hackage"
+        if: github.event_name == 'release'
+        env:
+          HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
+          HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
+        run: |
+          cabal upload --publish -u $HACKAGE_USER -p $HACKAGE_PASSWORD ./hackage-dist/sdist/*.tar.gz 
+
+      - name: "Publish candidate package to Hackage"
+        if: github.event_name == 'push'
         env:
           HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
           HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
         run: |
           cabal upload -u $HACKAGE_USER -p $HACKAGE_PASSWORD ./hackage-dist/sdist/*.tar.gz 
 
-      - name: "Upload docs to Hackage"
+      - name: "Publish docs to Hackage"
+        if: github.event_name == 'release'
+        env:
+          HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
+          HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
+        run: |
+          cabal upload --publish -u $HACKAGE_USER -p $HACKAGE_PASSWORD -d ./hackage-dist/*-docs.tar.gz 
+
+      - name: "Publish candidate docs to Hackage"
+        if: github.event_name == 'push'
         env:
           HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
           HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
