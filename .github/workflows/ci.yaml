@@ -26,7 +26,7 @@ jobs:
           fail-on: warning
 
   cabal:
-    name: ${{ matrix.os }} / cabal ${{ matrix.cabal }} / ghc ${{ matrix.ghc }}
+    name: cabal ${{ matrix.cabal }} / ghc ${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -46,7 +46,7 @@ jobs:
           cabal-version: ${{ matrix.cabal }}
 
   stack:
-    name: ${{ matrix.os }} / stack ${{ matrix.stack }} / ${{ matrix.resolver }}
+    name: stack ${{ matrix.stack }} / ${{ matrix.resolver }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -65,8 +65,8 @@ jobs:
           resolver: ${{ matrix.resolver }}
           stack-version: ${{ matrix.stack }}
 
-  upload:
-    name: "Publish to Hackage"
+  publish:
+    name: "publish"
     runs-on: "ubuntu-latest"
     needs:
       - hlint
