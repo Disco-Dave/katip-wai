@@ -17,7 +17,6 @@ jobs:
         os: ["ubuntu-latest"]
         cabal: ["3.6"]
         ghc:
-          - "8.8.4"
           - "8.10.7"
           - "9.0.2"
           - "9.2.2"
@@ -37,14 +36,17 @@ jobs:
       matrix:
         os: ["ubuntu-latest"]
         stack: ["2.7.5"]
-        ghc: ["8.10.7"]
+        resolver: 
+          - "lts-18.28"
+          - "lts-19.7"
+          - "nightly"
     steps:
       - uses: actions/checkout@v2
 
       - uses: "./.github/actions/stack-build"
         name: Build
         with:
-          ghc-version: ${{ matrix.ghc }}
+          resolver: ${{ matrix.resolver }}
           stack-version: ${{ matrix.stack }}
 
   upload:

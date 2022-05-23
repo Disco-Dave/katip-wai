@@ -5,10 +5,10 @@ inputs:
     description: "Version of stack to use"
     required: false
     default: "2.7.3"
-  ghc-version:
-    description: "Version of ghc to use"
+  resolver:
+    description: "Resolver to use from stackage"
     required: false
-    default: "8.10.7"
+    default: "lts-19.7"
 runs:
   using: "composite"
   steps:
@@ -16,27 +16,32 @@ runs:
       id: setup-haskell-stack
       name: Setup Haskell and Stack
       with:
-        ghc-version: ${{ inputs.ghc-version }}
         stack-version: ${{ inputs.stack-version }}
         enable-stack: true
+        stack-no-glboal: true
 
     - uses: actions/cache@v2.1.3
       name: Cache ~/.stack
       with:
         path: ${{ steps.setup-haskell-stack.outputs.stack-root }}
-        key: ${{ runner.os }}-${{ matrix.ghc }}-stack
+        key: ${{ runner.os }}-${{ matrix.resolver }}-stack
+
+    - name: Setup stack
+      shell: bash
+      run: |
+        stack setup --resolver "${{ matrix.resolver }}"
 
     - name: Install dependencies
       shell: bash
       run: |
-        stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --only-dependencies
+        stack build --resolver "${{ matrix.resolver }}"  --test --bench --no-run-tests --no-run-benchmarks --only-dependencies
 
     - name: Build
       shell: bash
       run: |
-        stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks
+        stack build --resolver "${{ matrix.resolver }}" --test --bench --no-run-tests --no-run-benchmarks
 
     - name: Test
       shell: bash
       run: |
-        stack test --system-ghc
+        stack test --resolver "${{ matrix.resolver }}"
