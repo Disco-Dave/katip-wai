@@ -69,6 +69,7 @@ jobs:
     name: "Publish to Hackage"
     runs-on: "ubuntu-latest"
     needs:
+      - hlint
       - cabal
       - stack
     steps:

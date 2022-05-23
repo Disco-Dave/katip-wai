@@ -80,8 +80,8 @@ toLogEntry value =
 
 isMostlySameAs :: LogEntry -> LogEntry -> Bool
 isMostlySameAs log1 log2 =
-  let compareResponse resp1 resp2 =
-        on (==) (fmap status) resp1 resp2
+  let compareResponse =
+        on (==) (fmap status)
       compareHeaders head1 head2 =
         on (==) (fmap referer) head1 head2
           && on (==) (fmap userAgent) head1 head2
