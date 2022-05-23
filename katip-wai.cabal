@@ -20,11 +20,6 @@ license-file: LICENSE
 
 extra-source-files:
     README.md
-    ChangeLog.md
-
-source-repository head
-  type: git
-  location: https://github.com/Disco-Dave/katip-wai
 
 common shared
   default-language: Haskell2010

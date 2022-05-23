@@ -19,16 +19,10 @@ jobs:
         ghc:
           - "8.8.4"
           - "8.10.7"
-          - "9.0.1"
-          - "9.2.1"
+          - "9.0.2"
+          - "9.2.2"
     steps:
       - uses: actions/checkout@v2
-
-      - name: Fix cabal project for 9.2.1
-        if: ${{ matrix.ghc == '9.2.1' }}
-        run: |
-          cp cabal.project cabal.project.backup 
-          cat cabal.project.backup ghc-9.2.1.cabal.project > cabal.project 
 
       - uses: "./.github/actions/cabal-build"
         name: Build
@@ -42,7 +36,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-latest"]
-        stack: ["2.7.3"]
+        stack: ["2.7.5"]
         ghc: ["8.10.7"]
     steps:
       - uses: actions/checkout@v2
