@@ -9,6 +9,22 @@ on:
     types: ["published"]
 
 jobs:
+  hlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Set up HLint"
+        uses: haskell/actions/hlint-setup@v2
+        with:
+          version: "3.4"
+
+      - name: "Run HLint"
+        uses: haskell/actions/hlint-run@v2
+        with:
+          path: '["src/", "test/"]'
+          fail-on: warning
+
   cabal:
     name: ${{ matrix.os }} / cabal ${{ matrix.cabal }} / ghc ${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
@@ -36,7 +52,7 @@ jobs:
       matrix:
         os: ["ubuntu-latest"]
         stack: ["2.7.5"]
-        resolver: 
+        resolver:
           - "lts-18.28"
           - "lts-19.7"
           - "nightly"
@@ -89,7 +105,7 @@ jobs:
           HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
           HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
         run: |
-          cabal upload --publish -u $HACKAGE_USER -p $HACKAGE_PASSWORD ./hackage-dist/sdist/*.tar.gz 
+          cabal upload --publish -u $HACKAGE_USER -p $HACKAGE_PASSWORD ./hackage-dist/sdist/*.tar.gz
 
       - name: "Publish candidate package to Hackage"
         if: github.event_name == 'push'
@@ -97,7 +113,7 @@ jobs:
           HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
           HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
         run: |
-          cabal upload -u $HACKAGE_USER -p $HACKAGE_PASSWORD ./hackage-dist/sdist/*.tar.gz 
+          cabal upload -u $HACKAGE_USER -p $HACKAGE_PASSWORD ./hackage-dist/sdist/*.tar.gz
 
       - name: "Publish docs to Hackage"
         if: github.event_name == 'release'
@@ -105,7 +121,7 @@ jobs:
           HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
           HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
         run: |
-          cabal upload --publish -u $HACKAGE_USER -p $HACKAGE_PASSWORD -d ./hackage-dist/*-docs.tar.gz 
+          cabal upload --publish -u $HACKAGE_USER -p $HACKAGE_PASSWORD -d ./hackage-dist/*-docs.tar.gz
 
       - name: "Publish candidate docs to Hackage"
         if: github.event_name == 'push'
@@ -113,4 +129,4 @@ jobs:
           HACKAGE_USER: ${{ secrets.HACKAGE_USER }}
           HACKAGE_PASSWORD: ${{ secrets.HACKAGE_PASSWORD }}
         run: |
-          cabal upload -u $HACKAGE_USER -p $HACKAGE_PASSWORD -d ./hackage-dist/*-docs.tar.gz 
+          cabal upload -u $HACKAGE_USER -p $HACKAGE_PASSWORD -d ./hackage-dist/*-docs.tar.gz
