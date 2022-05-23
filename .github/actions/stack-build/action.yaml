@@ -18,7 +18,7 @@ runs:
       with:
         stack-version: ${{ inputs.stack-version }}
         enable-stack: true
-        stack-no-glboal: true
+        stack-no-global: true
 
     - uses: actions/cache@v2.1.3
       name: Cache ~/.stack
