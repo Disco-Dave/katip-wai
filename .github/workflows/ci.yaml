@@ -30,7 +30,7 @@ jobs:
           cabal-version: ${{ matrix.cabal }}
 
   stack:
-    name: ${{ matrix.os }} / stack ${{ matrix.stack }} / ghc ${{ matrix.ghc }}
+    name: ${{ matrix.os }} / stack ${{ matrix.stack }} / ${{ matrix.resolver }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
