@@ -1,4 +1,4 @@
-imame: "Build Haskell - Stack"
+name: "Build Haskell - Stack"
 description: "Build haskell project with stack"
 inputs:
   stack-version:

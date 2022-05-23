@@ -1,4 +1,4 @@
-imame: "Build Haskell - Cabal"
+name: "Build Haskell - Cabal"
 description: "Build haskell project with cabal"
 inputs:
   cabal-version:
