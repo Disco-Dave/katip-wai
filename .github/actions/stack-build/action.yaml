@@ -24,24 +24,24 @@ runs:
       name: Cache ~/.stack
       with:
         path: ${{ steps.setup-haskell-stack.outputs.stack-root }}
-        key: ${{ runner.os }}-${{ matrix.resolver }}-stack
+        key: ${{ runner.os }}-${{ inputs.resolver }}-stack
 
     - name: Setup stack
       shell: bash
       run: |
-        stack setup --resolver "${{ matrix.resolver }}"
+        stack setup --resolver "${{ inputs.resolver }}"
 
     - name: Install dependencies
       shell: bash
       run: |
-        stack build --resolver "${{ matrix.resolver }}"  --test --bench --no-run-tests --no-run-benchmarks --only-dependencies
+        stack build --resolver "${{ inputs.resolver }}"  --test --bench --no-run-tests --no-run-benchmarks --only-dependencies
 
     - name: Build
       shell: bash
       run: |
-        stack build --resolver "${{ matrix.resolver }}" --test --bench --no-run-tests --no-run-benchmarks
+        stack build --resolver "${{ inputs.resolver }}" --test --bench --no-run-tests --no-run-benchmarks
 
     - name: Test
       shell: bash
       run: |
-        stack test --resolver "${{ matrix.resolver }}"
+        stack test --resolver "${{ inputs.resolver }}"
