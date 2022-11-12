@@ -14,12 +14,17 @@ bug-reports:https://github.com/Disco-Dave/katip-wai/issues
 author: David Burkett
 maintainer: David Burkett
 
-copyright: 2021 David Burkett
+copyright: 2022 David Burkett
 license: BSD-3-Clause
 license-file: LICENSE
 
 extra-source-files:
     README.md
+
+flag pedantic
+  default: False
+  description: Enables @-Werror@, which turns warnings into errors.
+  manual: True
 
 common shared
   default-language: Haskell2010
@@ -36,6 +41,7 @@ common shared
     -Wno-missing-local-signatures 
     -Wno-monomorphism-restriction 
     -Wno-missing-deriving-strategies
+    -Werror=incomplete-patterns
 
   if impl(ghc >= 8.10)
     ghc-options:
@@ -46,8 +52,12 @@ common shared
     ghc-options:
       -Wno-missing-kind-signatures
 
+  if flag(pedantic)
+    ghc-options:
+      -Werror
+
   build-depends:
-    , aeson >=0.6 && <2.1
+    , aeson >=0.6 && <2.2
     , base >=4.7 && <5
     , bytestring >=0.9 && <0.12
     , http-types >=0.12 && <0.13

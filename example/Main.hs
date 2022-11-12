@@ -9,7 +9,6 @@ import Data.Proxy (Proxy (Proxy))
 import qualified Katip
 import Katip.Wai (ApplicationT, runApplication)
 import qualified Katip.Wai
-import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified Servant
 import System.IO (stdout)

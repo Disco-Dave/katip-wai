@@ -1,4 +1,8 @@
 .stack-work/
+cabal.project.freeze
+cabal.project.local
 dist-newstyle/
 hackage-dist*
+stack.yaml
+stack.yaml.lock
 *~
