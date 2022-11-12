@@ -4,7 +4,7 @@ inputs:
   cabal-version:
     description: "Version of cabal to use"
     required: false
-    default: "3.6.2"
+    default: "3.8.1.0"
   ghc-version:
     description: "Version of ghc to use"
     required: false
@@ -19,6 +19,11 @@ runs:
         ghc-version: ${{ inputs.ghc-version }}
         cabal-version: ${{ inputs.cabal-version }}
 
+    - name: Configure
+      shell: bash
+      run: |
+        cabal init --flags pedantic -O0
+
     - name: Freeze
       shell: bash
       run: |
@@ -29,7 +34,7 @@ runs:
       name: Cache ~/.cabal/store
       with:
         path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-        key: ${{ runner.os }}-${{ inputs.ghc-version }}-${{ inputs.cabal-version }}-${{ hashFiles('deps') }}
+        key: ${{ runner.os }}-${{ inputs.ghc-version }}-${{ hashFiles('deps') }}
 
     - name: Install dependencies
       shell: bash

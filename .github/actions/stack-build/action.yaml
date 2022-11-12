@@ -4,11 +4,11 @@ inputs:
   stack-version:
     description: "Version of stack to use"
     required: false
-    default: "2.7.3"
+    default: "2.9.1"
   resolver:
     description: "Resolver to use from stackage"
     required: false
-    default: "lts-19.7"
+    default: "nightly"
 runs:
   using: "composite"
   steps:
@@ -34,14 +34,14 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        stack build --resolver "${{ inputs.resolver }}"  --test --bench --no-run-tests --no-run-benchmarks --only-dependencies
+        stack build --resolver "${{ inputs.resolver }}" --fast --test --bench --no-run-tests --no-run-benchmarks --only-dependencies
 
     - name: Build
       shell: bash
       run: |
-        stack build --resolver "${{ inputs.resolver }}" --test --bench --no-run-tests --no-run-benchmarks
+        stack build --resolver "${{ inputs.resolver }}" --fast --pedantic --test --bench --no-run-tests --no-run-benchmarks
 
     - name: Test
       shell: bash
       run: |
-        stack test --resolver "${{ inputs.resolver }}"
+        stack test --fast --pedantic --resolver "${{ inputs.resolver }}"

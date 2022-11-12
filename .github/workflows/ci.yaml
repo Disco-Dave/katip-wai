@@ -31,7 +31,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-latest"]
-        cabal: ["3.8"]
+        cabal: ["3.8.1.0"]
         ghc:
           - "8.10"
           - "9.0"
@@ -81,7 +81,7 @@ jobs:
         name: Setup Haskell and Cabal
         with:
           ghc-version: "8.10.7"
-          cabal-version: "3.8"
+          cabal-version: "3.8.1.0"
 
       - name: Freeze
         run: |
