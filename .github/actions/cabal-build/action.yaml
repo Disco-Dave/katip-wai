@@ -22,7 +22,7 @@ runs:
     - name: Configure
       shell: bash
       run: |
-        cabal init --flags pedantic -O0
+        cabal configure --flags pedantic -O0
 
     - name: Freeze
       shell: bash

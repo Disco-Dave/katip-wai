@@ -29,19 +29,19 @@ runs:
     - name: Setup stack
       shell: bash
       run: |
-        stack setup --resolver "${{ inputs.resolver }}"
+        stack init --resolver "${{ inputs.resolver }}"
 
     - name: Install dependencies
       shell: bash
       run: |
-        stack build --resolver "${{ inputs.resolver }}" --fast --test --bench --no-run-tests --no-run-benchmarks --only-dependencies
+        stack build --fast --test --bench --no-run-tests --no-run-benchmarks --only-dependencies
 
     - name: Build
       shell: bash
       run: |
-        stack build --resolver "${{ inputs.resolver }}" --fast --pedantic --test --bench --no-run-tests --no-run-benchmarks
+        stack build --fast --pedantic --test --bench --no-run-tests --no-run-benchmarks
 
     - name: Test
       shell: bash
       run: |
-        stack test --fast --pedantic --resolver "${{ inputs.resolver }}"
+        stack test --fast --pedantic
