@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-latest"]
-        stack: ["2.9"]
+        stack: ["2.9.1"]
         resolver:
           - "lts-18"
           - "lts-19"
