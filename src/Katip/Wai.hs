@@ -6,7 +6,7 @@
 -- |
 --Description: Middleware for logging request and response info through Katip.
 --
---Add information about 'Wai.Request', 'Wai.response', and the elapsed time to Katip's 'Katip.LogContexts'.
+--Add information about 'Wai.Request', 'Wai.Response', and the elapsed time to Katip's 'Katip.LogContexts'.
 --
 --The following is added to the context as \"response\":
 --
