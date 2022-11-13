@@ -22,8 +22,10 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 <!--   `Fixed` for any bug fixes. -->
 <!--   `Security` in case of vulnerabilities. -->
 
-
 ## [Unreleased]
+
+
+## [0.1.2.1] - 2022-11-12
 
 ### Added 
 
@@ -56,7 +58,8 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 - Initial release
 
-[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.0...HEAD
+[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.1...HEAD
+[0.1.2.1]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.0...releases/0.1.2.1
 [0.1.2.0]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.1.0...releases/0.1.2.0
 [0.1.1.0]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.0.0...releases/0.1.1.0
 [0.1.0.0]: https://github.com/Disco-Dave/katip-wai/releases/tag/releases%2F0.1.0.0
