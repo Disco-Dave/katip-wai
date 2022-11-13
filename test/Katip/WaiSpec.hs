@@ -17,8 +17,10 @@ import qualified LogEntry
 import qualified Network.HTTP.Client as Http
 import Test.Hspec (Spec, describe, it, runIO, shouldBe, shouldSatisfy)
 
+
 allSeverities :: [Katip.Severity]
 allSeverities = [minBound ..]
+
 
 spec :: Spec
 spec = describe "middleware" $ do

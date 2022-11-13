@@ -1,8 +1,9 @@
 {-# LANGUAGE RankNTypes #-}
 
-module DebugScribe (
-  withDebugScribe,
-) where
+module DebugScribe
+  ( withDebugScribe
+  )
+where
 
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Concurrent.MVar as MVar
@@ -10,6 +11,7 @@ import qualified Control.Concurrent.STM as STM
 import Control.Monad (void)
 import qualified Data.Aeson as Aeson
 import qualified Katip
+
 
 withDebugScribe :: Katip.PermitFunc -> Katip.Verbosity -> (Katip.Scribe -> IO a) -> IO [Aeson.Value]
 withDebugScribe permitFunc verbosity useScribe = do

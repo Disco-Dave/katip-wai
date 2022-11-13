@@ -1,12 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module DebugApplication (
-  DebugApplication,
-  sendNoContentRequest,
-  sendLogRequest,
-  sendNotFoundRequest,
-  withDebugApplication,
-) where
+module DebugApplication
+  ( DebugApplication
+  , sendNoContentRequest
+  , sendLogRequest
+  , sendNotFoundRequest
+  , withDebugApplication
+  )
+where
 
 import Control.Exception (bracket)
 import Control.Monad (join)
@@ -29,10 +30,13 @@ import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
 import Test.Hspec (shouldBe)
 
+
 newtype DebugApplication = DebugApplication Warp.Port
+
 
 toUrl :: DebugApplication -> String
 toUrl (DebugApplication port) = "http://localhost:" <> show port
+
 
 sendLogRequest :: Http.Manager -> DebugApplication -> Method -> Text -> IO ()
 sendLogRequest manager app method message = do
@@ -54,6 +58,7 @@ sendLogRequest manager app method message = do
       body = decodeUtf8With lenientDecode bytes
    in body `shouldBe` message
 
+
 sendNoContentRequest :: Http.Manager -> DebugApplication -> Method -> IO ()
 sendNoContentRequest manager app method = do
   baseRequest <- Http.parseRequest $ toUrl app
@@ -67,6 +72,7 @@ sendNoContentRequest manager app method = do
   let status = Http.responseStatus response
   status `shouldBe` Status.status204
 
+
 sendNotFoundRequest :: Http.Manager -> DebugApplication -> Method -> IO ()
 sendNotFoundRequest manager app method = do
   baseRequest <- Http.parseRequest $ toUrl app <> "/not-found"
@@ -79,6 +85,7 @@ sendNotFoundRequest manager app method = do
 
   let status = Http.responseStatus response
   status `shouldBe` Status.status404
+
 
 mkApplication :: Katip.Severity -> ApplicationT (KatipContextT IO)
 mkApplication severity =
@@ -102,6 +109,7 @@ mkApplication severity =
             send $ Wai.responseLBS (toEnum 404) [] mempty
    in Katip.Wai.middleware severity base
 
+
 withLogEnv :: (Katip.LogEnv -> IO a) -> IO [Aeson.Value]
 withLogEnv useLogEnv = do
   withDebugScribe (Katip.permitItem minBound) Katip.V3 $ \scribe ->
@@ -109,6 +117,7 @@ withLogEnv useLogEnv = do
           Katip.initLogEnv "debug-app" "local-test"
             >>= Katip.registerScribe "debug" scribe Katip.defaultScribeSettings
      in bracket makeLogEnv Katip.closeScribes useLogEnv
+
 
 withDebugApplication :: Katip.Severity -> (DebugApplication -> IO a) -> IO [Aeson.Value]
 withDebugApplication severity useApp =

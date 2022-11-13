@@ -13,12 +13,15 @@ import qualified Network.Wai.Handler.Warp as Warp
 import qualified Servant
 import System.IO (stdout)
 
+
 type Api = Servant.GetNoContent
+
 
 server :: Servant.ServerT Api (Katip.KatipContextT Servant.Handler)
 server = do
   Katip.logLocM Katip.InfoS "This message should also have the request context"
   pure Servant.NoContent
+
 
 mkApplication :: ApplicationT (Katip.KatipContextT IO)
 mkApplication = Katip.Wai.middleware Katip.InfoS $ \request send -> do
@@ -33,6 +36,7 @@ mkApplication = Katip.Wai.middleware Katip.InfoS $ \request send -> do
          in Servant.serve proxy hoistedServer
 
   withRunInIO $ \toIO -> hoistedApp request (toIO . send)
+
 
 withLogEnv :: (Katip.LogEnv -> IO a) -> IO a
 withLogEnv useLogEnv = do
@@ -49,6 +53,7 @@ withLogEnv useLogEnv = do
           >>= Katip.registerScribe "stdout" handleScribe Katip.defaultScribeSettings
 
   bracket makeLogEnv Katip.closeScribes useLogEnv
+
 
 main :: IO ()
 main = withLogEnv $ \logEnv ->

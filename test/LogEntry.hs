@@ -1,15 +1,16 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module LogEntry (
-  Headers (..),
-  Request (..),
-  Response (..),
-  LogData (..),
-  LogEntry (..),
-  toLogEntry,
-  isMostlySameAs,
-) where
+module LogEntry
+  ( Headers (..)
+  , Request (..)
+  , Response (..)
+  , LogData (..)
+  , LogEntry (..)
+  , toLogEntry
+  , isMostlySameAs
+  )
+where
 
 import Data.Aeson ((.:))
 import qualified Data.Aeson as Aeson
@@ -20,6 +21,7 @@ import GHC.Generics (Generic)
 import GHC.Natural (Natural)
 import qualified Katip
 
+
 data Headers = Headers
   { host :: Maybe Text
   , referer :: Maybe Text
@@ -28,7 +30,9 @@ data Headers = Headers
   }
   deriving (Show, Generic, Eq)
 
+
 instance Aeson.FromJSON Headers
+
 
 data Request = Request
   { id :: UUID
@@ -43,7 +47,9 @@ data Request = Request
   }
   deriving (Show, Generic)
 
+
 instance Aeson.FromJSON Request
+
 
 data Response = Response
   { elapsedTimeInNanoSeconds :: Natural
@@ -51,7 +57,9 @@ data Response = Response
   }
   deriving (Show, Generic)
 
+
 instance Aeson.FromJSON Response
+
 
 data LogData = LogData
   { request :: Maybe Request
@@ -59,7 +67,9 @@ data LogData = LogData
   }
   deriving (Generic, Show)
 
+
 instance Aeson.FromJSON LogData
+
 
 data LogEntry = LogEntry
   { logMessage :: Text
@@ -68,15 +78,18 @@ data LogEntry = LogEntry
   }
   deriving (Show)
 
+
 instance Aeson.FromJSON LogEntry where
   parseJSON = Aeson.withObject "LogEntry" $ \obj ->
     LogEntry <$> (obj .: "msg") <*> (obj .: "data") <*> (obj .: "sev")
+
 
 toLogEntry :: Aeson.Value -> IO LogEntry
 toLogEntry value =
   case Aeson.fromJSON value of
     Aeson.Success entry -> pure entry
     Aeson.Error reason -> fail reason
+
 
 isMostlySameAs :: LogEntry -> LogEntry -> Bool
 isMostlySameAs log1 log2 =
@@ -97,6 +110,7 @@ isMostlySameAs log1 log2 =
    in on (==) logMessage log1 log2
         && on compareRequest (request . logData) log1 log2
         && on compareResponse (response . logData) log1 log2
+
 
 instance Eq LogEntry where
   (==) = isMostlySameAs
