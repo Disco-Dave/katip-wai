@@ -21,6 +21,7 @@ license-file: LICENSE
 extra-source-files:
   README.md
   CHANGELOG.md
+  CONTRIBUTING.md
 
 flag pedantic
   default: False

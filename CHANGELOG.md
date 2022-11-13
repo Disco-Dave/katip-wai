@@ -28,6 +28,7 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 ### Added 
 
 - Added [CHANGELOG.md](./CHANGELOG.md)
+- Added [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ### Fixed
 
