@@ -14,16 +14,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: "Set up HLint"
+      - name: "Set up hlint"
         uses: haskell/actions/hlint-setup@v2
         with:
           version: "3.5"
 
-      - name: "Run HLint"
+      - name: "Run hlint"
         uses: haskell/actions/hlint-run@v2
         with:
           path: '["src/", "test/"]'
           fail-on: warning
+
+  fourmolu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Run fourmolu"
+        uses: fourmolu/fourmolu-action@v5
 
   cabal:
     name: cabal ${{ matrix.cabal }} / ghc ${{ matrix.ghc }}
