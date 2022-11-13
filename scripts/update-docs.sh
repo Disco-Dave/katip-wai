@@ -13,5 +13,4 @@ trap 'rm -r "$dir"' EXIT
 cabal sdist --builddir="$dir"
 cabal haddock --with-compiler="$ghc_version" --builddir="$dir" --haddock-for-hackage --enable-doc
 
-cabal upload "$@" "$dir"/sdist/*.tar.gz
 cabal upload --documentation "$@" "$dir"/*-docs.tar.gz
