@@ -64,7 +64,9 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 - Initial release
 
-[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.1...HEAD
+
+[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.2...HEAD
+[0.1.2.2]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.1...releases/0.1.2.2
 [0.1.2.1]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.0...releases/0.1.2.1
 [0.1.2.0]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.1.0...releases/0.1.2.0
 [0.1.1.0]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.0.0...releases/0.1.1.0
