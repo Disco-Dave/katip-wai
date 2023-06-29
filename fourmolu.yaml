@@ -56,3 +56,9 @@ in-style: right-align
 # -	true
 # - false
 respectful: true
+
+# The auto option will keep parentheses if they already exist, but won't add parentheses if not. 
+# - auto
+# - always
+# - never
+single-constraint-parens: never

@@ -1,18 +1,19 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StrictData #-}
 
 -- |
---Description: Middleware for logging request and response info through Katip.
+-- Description: Middleware for logging request and response info through Katip.
 --
---Add information about 'Wai.Request', 'Wai.Response', and the elapsed time to Katip's 'Katip.LogContexts'.
+-- Add information about 'Wai.Request', 'Wai.Response', and the elapsed time to Katip's 'Katip.LogContexts'.
 --
---The following is added to the context as \"response\":
+-- The following is added to the context as \"response\":
 --
---  - \"elapsedTimeInNanoSeconds\": Amount of time from receiving the request to sending the response in nano seconds.
+--   - \"elapsedTimeInNanoSeconds\": Amount of time from receiving the request to sending the response in nano seconds.
 --
---  - \"status\": The status of the response, ie. 200, 202, 204, 400, 404, 500, etc.
+--   - \"status\": The status of the response, ie. 200, 202, 204, 400, 404, 500, etc.
 module Katip.Wai
   ( -- * Middleware
     defaultFormat
@@ -63,7 +64,11 @@ data Request = Request
   }
 
 
+#if MIN_VERSION_aeson(2,2,0)
+requestToKeyValues :: Aeson.KeyValue e kv => Request -> [kv]
+#else
 requestToKeyValues :: Aeson.KeyValue kv => Request -> [kv]
+#endif
 requestToKeyValues Request{..} =
   let toText = decodeUtf8With lenientDecode
       headers =
@@ -143,7 +148,11 @@ data Response = Response
   }
 
 
+#if MIN_VERSION_aeson(2,2,0)
+responseToKeyValues :: Aeson.KeyValue e kv => Response -> [kv]
+#else
 responseToKeyValues :: Aeson.KeyValue kv => Response -> [kv]
+#endif
 responseToKeyValues Response{..} =
   [ "elapsedTimeInNanoSeconds" .= Clock.toNanoSecs responseElapsedTime
   , "status" .= fromEnum responseStatus

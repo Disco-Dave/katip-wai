@@ -1,5 +1,4 @@
 packages: 
-  example/example.cabal
   katip-wai.cabal
 
 test-show-details: direct
