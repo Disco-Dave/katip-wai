@@ -63,12 +63,13 @@ data Request = Request
   , requestHeaderRange :: Maybe ByteString
   }
 
-
 #if MIN_VERSION_aeson(2,2,0)
 requestToKeyValues :: Aeson.KeyValue e kv => Request -> [kv]
 #else
 requestToKeyValues :: Aeson.KeyValue kv => Request -> [kv]
 #endif
+
+
 requestToKeyValues Request{..} =
   let toText = decodeUtf8With lenientDecode
       headers =
@@ -147,12 +148,13 @@ data Response = Response
   , responseStatus :: Status
   }
 
-
 #if MIN_VERSION_aeson(2,2,0)
 responseToKeyValues :: Aeson.KeyValue e kv => Response -> [kv]
 #else
 responseToKeyValues :: Aeson.KeyValue kv => Response -> [kv]
 #endif
+
+
 responseToKeyValues Response{..} =
   [ "elapsedTimeInNanoSeconds" .= Clock.toNanoSecs responseElapsedTime
   , "status" .= fromEnum responseStatus
