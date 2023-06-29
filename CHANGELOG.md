@@ -31,16 +31,6 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 - Increased upper bound for `aeson`
 
 
-### Added 
-
-- Added [CHANGELOG.md](./CHANGELOG.md)
-- Added [CONTRIBUTING.md](./CONTRIBUTING.md)
-
-### Fixed
-
-- Adjusted version bounds 
-- Fixed haddock error
-
 ## [0.1.2.1] - 2022-11-12
 
 ### Added 
