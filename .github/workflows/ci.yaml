@@ -46,7 +46,7 @@ jobs:
           - "9.6.3"
           - "9.8.1"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: "./.github/actions/cabal-build"
         name: Build
@@ -66,7 +66,7 @@ jobs:
           - "lts-22"
           - "nightly"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: "./.github/actions/stack-build"
         name: Build
@@ -83,7 +83,7 @@ jobs:
       - cabal
       - stack
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: haskell-actions/setup@v2
         id: setup-haskell-cabal
