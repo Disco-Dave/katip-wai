@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name: katip-wai
-version: 0.1.2.2
+version: 0.1.2.3
 
 synopsis: WAI middleware for logging request and response info through katip.
 description: WAI middleware for logging request and response info through katip. Please see the README on GitHub at <https://github.com/Disco-Dave/katip-wai#readme>
@@ -14,7 +14,7 @@ bug-reports:https://github.com/Disco-Dave/katip-wai/issues
 author: David Burkett
 maintainer: David Burkett
 
-copyright: 2022 David Burkett
+copyright: 2024 David Burkett
 license: BSD-3-Clause
 license-file: LICENSE
 
