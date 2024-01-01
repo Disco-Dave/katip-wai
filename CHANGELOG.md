@@ -31,10 +31,6 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 - Increased upper bound for `text`
 - Increased upper bound for `bytestring`
 
-### Fixed
-
-- Increased upper bound for `aeson`
-
 ## [0.1.2.2] - 2023-06-29
 
 ### Fixed
