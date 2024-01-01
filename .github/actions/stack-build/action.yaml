@@ -12,7 +12,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: haskell/actions/setup@v1
+    - uses: haskell/actions/setup@v2
       id: setup-haskell-stack
       name: Setup Haskell and Stack
       with:
