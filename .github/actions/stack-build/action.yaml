@@ -4,7 +4,7 @@ inputs:
   stack-version:
     description: "Version of stack to use"
     required: false
-    default: "2.9.1"
+    default: "2.15.5"
   resolver:
     description: "Resolver to use from stackage"
     required: false

@@ -4,11 +4,11 @@ inputs:
   cabal-version:
     description: "Version of cabal to use"
     required: false
-    default: "3.8.1.0"
+    default: "3.10.3.0"
   ghc-version:
     description: "Version of ghc to use"
     required: false
-    default: "8.10.7"
+    default: "9.8.2"
 runs:
   using: "composite"
   steps:

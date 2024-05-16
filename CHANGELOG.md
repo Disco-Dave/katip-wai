@@ -24,6 +24,12 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 ## [Unreleased]
 
+## [0.1.2.4] - 2024-05-16
+
+### Fixed
+
+- Increased upper bound for `network`
+
 ## [0.1.2.3] - 2024-01-01
 
 ### Fixed
@@ -72,7 +78,8 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 - Initial release
 
 
-[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.3...HEAD
+[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.4...HEAD
+[0.1.2.4]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.3...releases/0.1.2.4
 [0.1.2.3]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.2...releases/0.1.2.3
 [0.1.2.2]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.1...releases/0.1.2.2
 [0.1.2.1]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.0...releases/0.1.2.1

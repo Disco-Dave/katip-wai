@@ -5,7 +5,7 @@ set -e
 repo_path="$(realpath "$0" | xargs dirname | xargs dirname)"
 cd "$repo_path"
 
-ghc_versions=("9.4" "9.6" "9.8")
+ghc_versions=("9.6" "9.8" "9.10")
 
 cabal update
 

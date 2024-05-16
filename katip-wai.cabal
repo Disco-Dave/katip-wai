@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name: katip-wai
-version: 0.1.2.3
+version: 0.1.2.4
 
 synopsis: WAI middleware for logging request and response info through katip.
 description: WAI middleware for logging request and response info through katip. Please see the README on GitHub at <https://github.com/Disco-Dave/katip-wai#readme>
@@ -78,7 +78,7 @@ library
 
   build-depends:
     , clock >=0.8 && <0.9
-    , network >=3.0 && <3.2
+    , network >=3.0 && <3.3
 
 test-suite katip-wai-test
   import: shared
