@@ -42,7 +42,8 @@ type Formatter a = a -> Aeson.Value
 
 
 data TimeUnit
-  = Microseconds
+  = Nanoseconds
+  | Microseconds
   | Milliseconds
   | Seconds
   deriving (Show, Eq, Ord, Enum, Bounded)
@@ -67,8 +68,19 @@ formatHeaders headers =
 
 
 formatTimeSpec :: TimeUnit -> Clock.TimeSpec -> Aeson.Value
-formatTimeSpec =
-  error "TODO"
+formatTimeSpec timeUnit timeSpec =
+  let
+    (abbreviation, divisor) =
+      case timeUnit of
+        Nanoseconds -> ("ns" :: Text, 1 :: Double)
+        Microseconds -> ("μs", 1e+3)
+        Milliseconds -> ("ms", 1e+6)
+        Seconds -> ("s", 1e+9)
+   in
+    Aeson.object
+      [ "unit" Aeson..= abbreviation
+      , "time" Aeson..= (fromIntegral (Clock.toNanoSecs timeSpec) / divisor)
+      ]
 
 
 defaultIncludeHeaders :: IncludedHeaders
@@ -88,7 +100,7 @@ defaultRequestFormat includedHeaders request =
     , "method" Aeson..= bsToText (Request.method request)
     , "httpVersion" Aeson..= show (Request.httpVersion request)
     , "rawPathInfo" Aeson..= bsToText (Request.rawPathInfo request)
-    , "headers" Aeson..= formatHeaders (fmap (filterHeaders includedHeaders) Request.requestHeaders request)
+    , "headers" Aeson..= formatHeaders (filterHeaders includedHeaders (Request.requestHeaders request))
     , "isSecure" Aeson..= Request.isSecure request
     , "remoteHost" Aeson..= show (Request.remoteHost request)
     , "pathInfo" Aeson..= Request.pathInfo request
@@ -98,8 +110,17 @@ defaultRequestFormat includedHeaders request =
 
 
 defaultResponseFormat :: IncludedHeaders -> TimeUnit -> Formatter Response
-defaultResponseFormat =
-  error "TODO"
+defaultResponseFormat includedHeaders timeUnit response =
+  Aeson.object
+    [ "status"
+        Aeson..= Aeson.object
+          [ "code" Aeson..= HttpTypes.statusCode (Response.status response)
+          , "message" Aeson..= bsToText (HttpTypes.statusMessage (Response.status response))
+          ]
+    , "headers" Aeson..= formatHeaders (filterHeaders includedHeaders (Response.responseHeaders response))
+    , "respondedAt" Aeson..= Response.respondedAt response
+    , "responseTime" Aeson..= formatTimeSpec timeUnit (Response.responseTime response)
+    ]
 
 
 -- * Options
@@ -111,12 +132,21 @@ data Options m = Options
   }
 
 
-options :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Options m
-options =
-  error "TODO"
+options :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Katip.Severity -> Options m
+options requestFormatter responseFormatter severity =
+  Options
+    { logRequest = \request action ->
+        Katip.katipAddContext (Katip.sl "request" (requestFormatter request)) $ do
+          Katip.logLocM severity "Request received"
+          action
+    , logResponse = \response action ->
+        Katip.katipAddContext (Katip.sl "response" (responseFormatter response)) $ do
+          Katip.logLocM severity "Response sent"
+          action
+    }
 
 
-defaultOptions :: Katip.KatipContext m => Options m
+defaultOptions :: Katip.KatipContext m => Katip.Severity -> Options m
 defaultOptions =
   options
     (defaultRequestFormat defaultIncludeHeaders)

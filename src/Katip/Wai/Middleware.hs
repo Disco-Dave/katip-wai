@@ -1,7 +1,6 @@
 module Katip.Wai.Middleware
   ( ApplicationT
   , MiddlewareT
-  , Options (..)
   , runApplication
   , middleware
   ) where
@@ -12,7 +11,6 @@ import qualified Katip.Wai.Request as Request
 import qualified Katip.Wai.Response as Response
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import qualified Katip
 import qualified Network.Wai as Wai
 
 
@@ -31,7 +29,7 @@ runApplication toIO application request send =
 
 
 middleware
-  :: Katip.KatipContext m
+  :: MonadIO m
   => Options m
   -> MiddlewareT m
 middleware options application request send = do

@@ -37,6 +37,7 @@ common shared
     FlexibleContexts
     GeneralizedNewtypeDeriving
     NamedFieldPuns
+    NumericUnderscores
     OverloadedStrings
     RankNTypes
     RecordWildCards
