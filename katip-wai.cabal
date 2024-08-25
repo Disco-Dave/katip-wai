@@ -28,8 +28,19 @@ flag pedantic
   description: Enables @-Werror@, which turns warnings into errors.
   manual: True
 
+
 common shared
   default-language: Haskell2010
+
+  default-extensions:
+    DeriveGeneric
+    FlexibleContexts
+    GeneralizedNewtypeDeriving
+    NamedFieldPuns
+    OverloadedStrings
+    RankNTypes
+    RecordWildCards
+    StrictData
 
   ghc-options:
     -Weverything 
@@ -54,6 +65,10 @@ common shared
     ghc-options:
       -Wno-missing-kind-signatures
 
+  if impl(ghc >= 9.8)
+    ghc-options:
+      -Wno-missing-role-annotations 
+
   if flag(pedantic)
     ghc-options:
       -Werror
@@ -62,11 +77,19 @@ common shared
     , aeson >=0.6 && <2.3
     , base >=4.7 && <5
     , bytestring >=0.9 && <0.13
+    , case-insensitive
+    , containers
+    , data-has
     , http-types >=0.12 && <0.13
     , katip >=0.8 && <0.9
+    , mtl
     , text >=0.11 && <2.2
+    , time
+    , transformers
     , uuid >=1.3 && <1.4
+    , vault
     , wai >=3.0 && <3.3
+
 
 library
   import: shared
@@ -75,6 +98,10 @@ library
 
   exposed-modules:
       Katip.Wai
+      Katip.Wai.Middleware
+      Katip.Wai.Options
+      Katip.Wai.Request
+      Katip.Wai.Response
 
   build-depends:
     , clock >=0.8 && <0.9
@@ -88,10 +115,6 @@ test-suite katip-wai-test
   hs-source-dirs: test
 
   other-modules:
-      DebugApplication
-      DebugScribe
-      Katip.WaiSpec
-      LogEntry
       Spec
 
   build-tool-depends:
