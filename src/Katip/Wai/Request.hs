@@ -15,9 +15,12 @@ import qualified Network.Wai as Wai
 import qualified System.Clock as Clock
 
 
+-- | An incoming http address.
 data Request = Request
   { traceId :: UUID
+  -- ^ Unique identifier for the request.
   , method :: HttpTypes.Method
+  -- ^ HTTP request method, ie 'GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', or 'PATCH'.
   , httpVersion :: HttpTypes.HttpVersion
   , rawPathInfo :: ByteString
   , requestHeaders :: HttpTypes.RequestHeaders

@@ -2,7 +2,7 @@ module Katip.Wai
   ( -- * Middleware
     Middleware.middleware
 
-    -- ** WAI Middleware Helpers
+    -- ** Helpers
   , Middleware.ApplicationT
   , Middleware.MiddlewareT
   , Middleware.runApplication
@@ -34,4 +34,3 @@ import qualified Katip.Wai.Middleware as Middleware
 import qualified Katip.Wai.Options as Options
 import qualified Katip.Wai.Request as Request
 import qualified Katip.Wai.Response as Response
-
