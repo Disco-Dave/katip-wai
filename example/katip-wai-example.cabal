@@ -91,6 +91,11 @@ library
     , wai ^>= 3.2.4
     , warp ^>= 3.4.1
 
+    , uuid
+    , servant-openapi3
+    , openapi3
+    , servant-swagger-ui
+
   exposed-modules:
     Katip.Wai.Example
     Katip.Wai.Example.AppData

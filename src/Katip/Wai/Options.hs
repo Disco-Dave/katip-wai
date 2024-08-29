@@ -30,7 +30,6 @@ import Data.Text (Text)
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Encoding.Error as TextEncodingError
 import qualified Data.UUID as UUID
-import GHC.Stack (HasCallStack, withFrozenCallStack)
 import qualified Katip
 import qualified Network.HTTP.Types as HttpTypes
 import qualified System.Clock as Clock
@@ -100,11 +99,10 @@ defaultRequestFormat includedHeaders request =
     [ "traceId" Aeson..= UUID.toText (Request.traceId request)
     , "method" Aeson..= bsToText (Request.method request)
     , "httpVersion" Aeson..= show (Request.httpVersion request)
-    , "rawPathInfo" Aeson..= bsToText (Request.rawPathInfo request)
+    , "path" Aeson..= bsToText (Request.rawPathInfo request)
     , "headers" Aeson..= formatHeaders (filterHeaders includedHeaders (Request.requestHeaders request))
     , "isSecure" Aeson..= Request.isSecure request
     , "remoteHost" Aeson..= show (Request.remoteHost request)
-    , "pathInfo" Aeson..= Request.pathInfo request
     , "queryString" Aeson..= fmap (bimap bsToText (fmap bsToText)) (Request.queryString request)
     , "receivedAt" Aeson..= Request.receivedAt request
     ]
@@ -151,4 +149,4 @@ defaultOptions :: Katip.KatipContext m => Katip.Severity -> Options m
 defaultOptions =
   options
     (defaultRequestFormat defaultIncludeHeaders)
-    (defaultResponseFormat defaultIncludeHeaders Seconds)
+    (defaultResponseFormat defaultIncludeHeaders Milliseconds)
