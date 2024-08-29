@@ -30,6 +30,7 @@ import Data.Text (Text)
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Encoding.Error as TextEncodingError
 import qualified Data.UUID as UUID
+import GHC.Stack (HasCallStack, withFrozenCallStack)
 import qualified Katip
 import qualified Network.HTTP.Types as HttpTypes
 import qualified System.Clock as Clock
@@ -137,11 +138,11 @@ options requestFormatter responseFormatter severity =
   Options
     { logRequest = \request action ->
         Katip.katipAddContext (Katip.sl "request" (requestFormatter request)) $ do
-          Katip.logLocM severity "Request received"
+          Katip.logFM severity "Request received"
           action
     , logResponse = \response action ->
         Katip.katipAddContext (Katip.sl "response" (responseFormatter response)) $ do
-          Katip.logLocM severity "Response sent"
+          Katip.logFM severity "Response sent"
           action
     }
 

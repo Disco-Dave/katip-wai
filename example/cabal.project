@@ -1,0 +1,8 @@
+packages: 
+  ../katip-wai.cabal
+  katip-wai-example.cabal
+
+with-compiler: ghc-9.8.2
+
+tests: True
+test-show-details: direct

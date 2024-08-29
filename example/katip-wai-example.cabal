@@ -1,0 +1,106 @@
+cabal-version: 3.8
+
+name: my-katip-wai-example
+version: 0.1.0.0
+
+
+flag pedantic
+  description: Enables @-Werror@, which turns warnings into errors.
+  default: False
+  manual: True
+
+
+common shared
+  default-language: GHC2021
+
+  default-extensions:
+    DataKinds
+    DuplicateRecordFields
+    LambdaCase
+    MultiWayIf
+    NoFieldSelectors
+    OverloadedRecordDot
+    OverloadedStrings
+    RecordWildCards
+    StrictData
+    TypeFamilies
+    TypeOperators
+
+  ghc-options:
+    -Weverything 
+    -Wno-all-missed-specialisations 
+    -Wno-implicit-prelude 
+    -Wno-missed-specialisations 
+    -Wno-missing-deriving-strategies
+    -Wno-missing-import-lists 
+    -Wno-missing-kind-signatures
+    -Wno-missing-local-signatures 
+    -Wno-missing-role-annotations
+    -Wno-missing-safe-haskell-mode
+    -Wno-monomorphism-restriction 
+    -Wno-safe 
+    -Wno-unsafe 
+
+    -Werror=incomplete-patterns
+
+  if flag(pedantic)
+    ghc-options:
+      -Werror
+
+  build-depends:
+    , base >=4.7 && <5
+
+  autogen-modules:
+    Paths_my_katip_wai_example
+    
+  other-modules:
+    Paths_my_katip_wai_example
+
+
+common shared-exe
+  import:
+    , shared
+
+  build-depends:
+    , my-katip-wai-example
+
+  ghc-options:
+    -threaded 
+    -rtsopts 
+    -with-rtsopts=-N
+
+
+library
+  import: shared
+
+  hs-source-dirs: src
+
+  build-depends:
+    , aeson ^>= 2.2.3.0
+    , bytestring ^>= 0.12.1.0
+    , containers ^>= 0.7
+    , exceptions ^>= 0.10.8
+    , katip ^>= 0.8.8.2
+    , katip-wai 
+    , mtl ^>= 2.3.1
+    , servant ^>= 0.20.1
+    , servant-server ^>= 0.20
+    , text ^>= 2.1.1
+    , transformers ^>= 0.6.1.1
+    , unliftio ^>= 0.2.25.0
+    , wai ^>= 3.2.4
+    , warp ^>= 3.4.1
+
+  exposed-modules:
+    Katip.Wai.Example
+    Katip.Wai.Example.AppData
+    Katip.Wai.Example.AppM
+    Katip.Wai.Example.Middleware
+    Katip.Wai.Example.Servant
+
+
+executable my-katip-wai-example
+  import: shared-exe
+
+  hs-source-dirs: app
+  main-is: Main.hs
