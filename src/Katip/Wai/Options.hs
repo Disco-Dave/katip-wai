@@ -3,12 +3,14 @@ module Katip.Wai.Options
     Formatter
   , TimeUnit (..)
   , IncludedHeaders
-  , defaultIncludeHeaders
+  , defaultIncludedHeaders
   , defaultRequestFormat
   , defaultResponseFormat
 
     -- * Options
   , Options (..)
+  , addRequestAndResponseToContext
+  , logRequestAndResponse
   , options
   , defaultOptions
   )
@@ -38,9 +40,11 @@ import qualified System.Clock as Clock
 -- * Formatting
 
 
+-- | A formatter is a function that can convert 'a' into json.
 type Formatter a = a -> Aeson.Value
 
 
+-- | Unit of time to use when logging response times.
 data TimeUnit
   = Nanoseconds
   | Microseconds
@@ -49,6 +53,7 @@ data TimeUnit
   deriving (Show, Eq, Ord, Enum, Bounded)
 
 
+-- | Headers to include in your logs.
 type IncludedHeaders = Set HttpTypes.HeaderName
 
 
@@ -83,8 +88,9 @@ formatTimeSpec timeUnit timeSpec =
       ]
 
 
-defaultIncludeHeaders :: IncludedHeaders
-defaultIncludeHeaders =
+-- | Default list of headers to include in logs: 'Host', 'Referer', 'User-Agent', and 'Range'.
+defaultIncludedHeaders :: IncludedHeaders
+defaultIncludedHeaders =
   Set.fromList
     [ "Host"
     , "Referer"
@@ -93,6 +99,7 @@ defaultIncludeHeaders =
     ]
 
 
+-- | Default formatter for 'Request's.
 defaultRequestFormat :: IncludedHeaders -> Formatter Request
 defaultRequestFormat includedHeaders request =
   Aeson.object
@@ -108,6 +115,7 @@ defaultRequestFormat includedHeaders request =
     ]
 
 
+-- | Default formatter for 'Response's.
 defaultResponseFormat :: IncludedHeaders -> TimeUnit -> Formatter Response
 defaultResponseFormat includedHeaders timeUnit response =
   Aeson.object
@@ -131,22 +139,60 @@ data Options m = Options
   }
 
 
-options :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Katip.Severity -> Options m
-options requestFormatter responseFormatter severity =
+addRequestAndResponseToContext :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Options m
+addRequestAndResponseToContext requestFormatter responseFormatter =
   Options
     { logRequest = \request action ->
         Katip.katipAddContext (Katip.sl "request" (requestFormatter request)) $ do
-          Katip.logFM severity "Request received"
           action
     , logResponse = \response action ->
         Katip.katipAddContext (Katip.sl "response" (responseFormatter response)) $ do
-          Katip.logFM severity "Response sent"
           action
     }
+
+
+logRequestAndResponse :: Katip.KatipContext m => Katip.Severity -> Options m
+logRequestAndResponse severity =
+  Options
+    { logRequest = \_ action -> do
+        Katip.logFM severity "Request received."
+        action
+    , logResponse = \_ action -> do
+        Katip.logFM severity "Response sent."
+        action
+    }
+
+
+options :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Katip.Severity -> Options m
+options requestFormatter responseFormatter severity =
+  mconcat
+    [ addRequestAndResponseToContext
+        requestFormatter
+        responseFormatter
+    , logRequestAndResponse severity
+    ]
 
 
 defaultOptions :: Katip.KatipContext m => Katip.Severity -> Options m
 defaultOptions =
   options
-    (defaultRequestFormat defaultIncludeHeaders)
-    (defaultResponseFormat defaultIncludeHeaders Milliseconds)
+    (defaultRequestFormat defaultIncludedHeaders)
+    (defaultResponseFormat defaultIncludedHeaders Milliseconds)
+
+
+instance Semigroup (Options m) where
+  a <> b =
+    Options
+      { logRequest = \request action ->
+          logRequest a request $ logRequest b request action
+      , logResponse = \response action ->
+          logResponse a response $ logResponse b response action
+      }
+
+
+instance Monoid (Options m) where
+  mempty =
+    Options
+      { logRequest = const id
+      , logResponse = const id
+      }

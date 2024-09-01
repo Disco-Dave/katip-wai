@@ -47,4 +47,4 @@ logUnhandledException application request respond =
 
 middleware :: Katip.Wai.MiddlewareT AppM
 middleware =
-  logUnhandledException . logRequestAndResponse
+  logRequestAndResponse . logUnhandledException

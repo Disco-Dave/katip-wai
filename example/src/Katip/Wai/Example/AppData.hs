@@ -25,7 +25,7 @@ withAppData use = do
       handleScribe <-
         Katip.mkHandleScribeWithFormatter
           Katip.jsonFormat
-          (Katip.ColorLog True)
+          (Katip.ColorLog False)
           stdout
           (Katip.permitItem minBound)
           maxBound

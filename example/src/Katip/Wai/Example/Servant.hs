@@ -18,12 +18,15 @@ import Servant qualified
 import Servant.OpenApi qualified
 import Servant.Swagger.UI qualified
 import UnliftIO (MonadUnliftIO (..))
+import UnliftIO qualified as UnliftIOn.Exception
 
 
 -- * GET
 
 
-type Get = Servant.GetNoContent
+type Get =
+  Servant.Summary ""
+    :> Servant.GetNoContent
 
 
 get :: AppM Servant.NoContent
@@ -35,7 +38,10 @@ get = do
 -- * :request GET
 
 
-type GetRequest = "request" :> Servant.Get '[Servant.JSON] (Maybe UUID)
+type GetRequest =
+  Servant.Summary ""
+    :> "request"
+    :> Servant.Get '[Servant.JSON] (Maybe UUID)
 
 
 getRequest :: AppM (Maybe UUID)
@@ -45,18 +51,33 @@ getRequest = do
   pure $ fmap (.traceId) activeRequest
 
 
+-- * :throw GET
+
+
+type GetThrow = "throw" :> Servant.Get '[Servant.JSON] Servant.NoContent
+
+
+getThrow :: AppM Servant.NoContent
+getThrow = do
+  Katip.logLocM Katip.DebugS "Request information is present when unhandled exceptions are thrown."
+  UnliftIOn.Exception.throwString @_ @() "Oh no! Something we never thought would happen happened!"
+  pure Servant.NoContent
+
+
 -- * Application
 
 
 type Api =
   Get
     :<|> GetRequest
+    :<|> GetThrow
 
 
 server :: Servant.ServerT Api AppM
 server =
   get
     :<|> getRequest
+    :<|> getThrow
 
 
 type ApiWithSwagger =

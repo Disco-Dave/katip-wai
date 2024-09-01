@@ -9,6 +9,8 @@ module Katip.Wai
 
     -- * Options
   , Options.Options (..)
+  , Options.addRequestAndResponseToContext
+  , Options.logRequestAndResponse
   , Options.options
   , Options.defaultOptions
 
@@ -16,7 +18,7 @@ module Katip.Wai
   , Options.Formatter
   , Options.TimeUnit (..)
   , Options.IncludedHeaders
-  , Options.defaultIncludeHeaders
+  , Options.defaultIncludedHeaders
   , Options.defaultRequestFormat
   , Options.defaultResponseFormat
 
@@ -34,3 +36,5 @@ import qualified Katip.Wai.Middleware as Middleware
 import qualified Katip.Wai.Options as Options
 import qualified Katip.Wai.Request as Request
 import qualified Katip.Wai.Response as Response
+
+
