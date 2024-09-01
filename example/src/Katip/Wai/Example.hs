@@ -2,17 +2,13 @@ module Katip.Wai.Example
   ( servant
   ) where
 
-import Control.Exception qualified
 import Data.Function ((&))
 import Katip qualified
 import Katip.Wai.Example.AppData qualified as AppData
 import Katip.Wai.Example.AppM qualified as AppM
 import Katip.Wai.Example.Servant qualified as Servant
 import Network.Wai.Handler.Warp qualified as Warp
-import System.IO (stdout)
 import UnliftIO (MonadUnliftIO (withRunInIO))
-import UnliftIO.Concurrent qualified
-import UnliftIO.Exception qualified
 
 
 servant :: Warp.Port -> IO ()

@@ -24,7 +24,7 @@ unliftApplication application = do
 
 logRequestAndResponse :: Katip.Wai.MiddlewareT AppM
 logRequestAndResponse =
-  Katip.Wai.middleware $
+  Katip.Wai.middlewareCustom $
     let
       katipWaiOptions = Katip.Wai.defaultOptions @AppM Katip.InfoS
      in

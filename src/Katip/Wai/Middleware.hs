@@ -2,6 +2,7 @@ module Katip.Wai.Middleware
   ( ApplicationT
   , MiddlewareT
   , runApplication
+  , middlewareCustom
   , middleware
   ) where
 
@@ -11,6 +12,7 @@ import qualified Katip.Wai.Request as Request
 import qualified Katip.Wai.Response as Response
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
+import qualified Katip
 import qualified Network.Wai as Wai
 
 
@@ -28,14 +30,19 @@ runApplication toIO application request send =
   toIO $ application request (liftIO . send)
 
 
-middleware
+middlewareCustom
   :: MonadIO m
   => Options m
   -> MiddlewareT m
-middleware options application request send = do
+middlewareCustom options application request send = do
   tracedRequest <- Request.traceRequest request
   Options.logRequest options tracedRequest $
     application request $ \response -> do
       tracedResponse <- Response.traceResponse tracedRequest response
       Options.logResponse options tracedResponse $
         send response
+
+
+middleware :: Katip.KatipContext m => Katip.Severity -> MiddlewareT m
+middleware =
+  middlewareCustom . Options.defaultOptions

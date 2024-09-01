@@ -1,6 +1,7 @@
 module Katip.Wai
   ( -- * Middleware
-    Middleware.middleware
+    Middleware.middlewareCustom
+  , Middleware.middleware
 
     -- ** Helpers
   , Middleware.ApplicationT
