@@ -103,7 +103,7 @@ defaultIncludedHeaders =
 defaultRequestFormat :: IncludedHeaders -> Formatter Request
 defaultRequestFormat includedHeaders request =
   Aeson.object
-    [ "traceId" Aeson..= UUID.toText (Request.traceId request)
+    [ "id" Aeson..= UUID.toText (Request.traceId request)
     , "method" Aeson..= bsToText (Request.method request)
     , "httpVersion" Aeson..= show (Request.httpVersion request)
     , "path" Aeson..= bsToText (Request.rawPathInfo request)

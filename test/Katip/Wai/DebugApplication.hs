@@ -95,7 +95,7 @@ mkApplication severity =
                   bytes <- join $ lookup "message" queryString
                   pure $ decodeUtf8With lenientDecode bytes
              in do
-                  Katip.logFM Katip.InfoS (Katip.ls message)
+                  Katip.logFM severity (Katip.ls message)
                   send $
                     Wai.responseLBS
                       (toEnum 202)

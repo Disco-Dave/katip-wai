@@ -1,58 +1,84 @@
 module Katip.Wai.LogEntry
-  ( Headers (..)
-  , Request (..)
+  ( Request (..)
+  , Status (..)
+  , ResponseTime (..)
   , Response (..)
   , LogData (..)
   , LogEntry (..)
+  , requestHeaders
+  , responseHeaders
   , toLogEntry
-  , isMostlySameAs
+  , shouldBe
   )
 where
 
 import Data.Aeson ((.:))
 import qualified Data.Aeson as Aeson
 import Data.Function (on)
+import Data.Map.Strict (Map)
 import Data.Text (Text)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import GHC.Natural (Natural)
+import GHC.Stack (HasCallStack)
 import qualified Katip
-
-
-data Headers = Headers
-  { host :: Maybe Text
-  , referer :: Maybe Text
-  , userAgent :: Maybe Text
-  , range :: Maybe Text
-  }
-  deriving (Show, Generic, Eq)
-
-
-instance Aeson.FromJSON Headers
+import qualified Test.Hspec as Hspec
 
 
 data Request = Request
   { id :: UUID
-  , httpVersion :: Text
-  , remoteHost :: Text
-  , isSecure :: Bool
   , method :: Text
+  , httpVersion :: Text
   , path :: Text
+  , headers :: Map Text Text
+  , isSecure :: Bool
+  , remoteHost :: Text
   , queryString :: [(Text, Maybe Text)]
-  , bodyLength :: Text
-  , headers :: Headers
+  , receivedAt :: Text
   }
-  deriving (Show, Generic)
+  deriving (Show, Eq, Generic)
 
 
 instance Aeson.FromJSON Request
 
 
-data Response = Response
-  { elapsedTimeInNanoSeconds :: Natural
-  , status :: Int
+requestHeaders :: Request -> Map Text Text
+requestHeaders Request{headers} =
+  headers
+
+
+data ResponseTime = ResponseTime
+  { unit :: Text
+  , time :: Double
   }
-  deriving (Show, Generic)
+  deriving (Show, Eq, Generic)
+
+
+instance Aeson.FromJSON ResponseTime
+
+
+data Status = Status
+  { code :: Natural
+  , message :: Text
+  }
+  deriving (Show, Eq, Generic)
+
+
+instance Aeson.FromJSON Status
+
+
+data Response = Response
+  { status :: Status
+  , headers :: Map Text Text
+  , respondedAt :: Text
+  , responseTime :: ResponseTime
+  }
+  deriving (Show, Eq, Generic)
+
+
+responseHeaders :: Response -> Map Text Text
+responseHeaders Response{headers} =
+  headers
 
 
 instance Aeson.FromJSON Response
@@ -88,27 +114,16 @@ toLogEntry value =
     Aeson.Error reason -> fail reason
 
 
-isMostlySameAs :: LogEntry -> LogEntry -> Bool
-isMostlySameAs log1 log2 =
-  let compareResponse =
-        on (==) (fmap status)
-      compareHeaders head1 head2 =
-        on (==) (fmap referer) head1 head2
-          && on (==) (fmap userAgent) head1 head2
-          && on (==) (fmap range) head1 head2
-      compareRequest req1 req2 =
-        on (==) (fmap httpVersion) req1 req2
-          && on (==) (fmap isSecure) req1 req2
-          && on (==) (fmap method) req1 req2
-          && on (==) (fmap path) req1 req2
-          && on (==) (fmap queryString) req1 req2
-          && on (==) (fmap bodyLength) req1 req2
-          && on compareHeaders (fmap headers) req1 req2
-   in on (==) logMessage log1 log2
-        && on compareRequest (request . logData) log1 log2
-        && on compareResponse (response . logData) log1 log2
+shouldBe :: HasCallStack => LogEntry -> LogEntry -> IO ()
+shouldBe log1 log2 = do
+  on Hspec.shouldBe logMessage log1 log2
 
+  on Hspec.shouldBe (fmap method . request . logData) log1 log2
+  on Hspec.shouldBe (fmap httpVersion . request . logData) log1 log2
+  on Hspec.shouldBe (fmap path . request . logData) log1 log2
+  on Hspec.shouldBe (fmap isSecure . request . logData) log1 log2
+  on Hspec.shouldBe (fmap queryString . request . logData) log1 log2
 
-instance Eq LogEntry where
-  (==) = isMostlySameAs
+  on Hspec.shouldBe (fmap status . response . logData) log1 log2
 
+  on Hspec.shouldBe logSeverity log1 log2

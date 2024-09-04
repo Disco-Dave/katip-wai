@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name: katip-wai
-version: 1.0.0.0
+version: 0.2.0.0
 
 synopsis: WAI middleware for logging request and response info through katip.
 description: WAI middleware for logging request and response info through katip. Please see the README on GitHub at <https://github.com/Disco-Dave/katip-wai#readme>
@@ -111,6 +111,9 @@ test-suite katip-wai-test
   type: exitcode-stdio-1.0
   main-is: Main.hs
   hs-source-dirs: test
+
+  default-extensions:
+    DuplicateRecordFields
 
   other-modules:
       Katip.Wai.DebugApplication
