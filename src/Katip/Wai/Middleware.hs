@@ -30,19 +30,27 @@ runApplication toIO application request send =
   toIO $ application request (liftIO . send)
 
 
+-- | Same as 'middleware', but allows you to customize how the 'Request.Request'
+-- and 'Response.Response' are handled.
 middlewareCustom
   :: MonadIO m
   => Options m
   -> MiddlewareT m
 middlewareCustom options application request send = do
   tracedRequest <- Request.traceRequest request
-  Options.logRequest options tracedRequest $
+  Options.handleRequest options tracedRequest $
     application request $ \response -> do
       tracedResponse <- Response.traceResponse tracedRequest response
-      Options.logResponse options tracedResponse $
+      Options.handleResponse options tracedResponse $
         send response
 
 
+-- | Add the request and response to the 'Katip.LogContexts', and log a message
+-- when a request is received and when a response is sent.
+--
+-- This uses the default format: 'Options.defaultRequestFormat' and 'Options.defaultResponseFormat' with milliseconds for the response time.
+--
+-- If you want more customization see 'middlewareCustom'.
 middleware :: Katip.KatipContext m => Katip.Severity -> MiddlewareT m
 middleware =
   middlewareCustom . Options.defaultOptions

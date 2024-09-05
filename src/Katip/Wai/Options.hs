@@ -134,18 +134,18 @@ defaultResponseFormat includedHeaders timeUnit response =
 
 
 data Options m = Options
-  { logRequest :: forall a. Request -> m a -> m a
-  , logResponse :: forall a. Response -> m a -> m a
+  { handleRequest :: forall a. Request -> m a -> m a
+  , handleResponse :: forall a. Response -> m a -> m a
   }
 
 
 addRequestAndResponseToContext :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Options m
 addRequestAndResponseToContext requestFormatter responseFormatter =
   Options
-    { logRequest = \request action ->
+    { handleRequest = \request action ->
         Katip.katipAddContext (Katip.sl "request" (requestFormatter request)) $ do
           action
-    , logResponse = \response action ->
+    , handleResponse = \response action ->
         Katip.katipAddContext (Katip.sl "response" (responseFormatter response)) $ do
           action
     }
@@ -154,10 +154,10 @@ addRequestAndResponseToContext requestFormatter responseFormatter =
 logRequestAndResponse :: Katip.KatipContext m => Katip.Severity -> Options m
 logRequestAndResponse severity =
   Options
-    { logRequest = \_ action -> do
+    { handleRequest = \_ action -> do
         Katip.logFM severity "Request received."
         action
-    , logResponse = \_ action -> do
+    , handleResponse = \_ action -> do
         Katip.logFM severity "Response sent."
         action
     }
@@ -183,16 +183,16 @@ defaultOptions =
 instance Semigroup (Options m) where
   a <> b =
     Options
-      { logRequest = \request action ->
-          logRequest a request $ logRequest b request action
-      , logResponse = \response action ->
-          logResponse a response $ logResponse b response action
+      { handleRequest = \request action ->
+          handleRequest a request $ handleRequest b request action
+      , handleResponse = \response action ->
+          handleResponse a response $ handleResponse b response action
       }
 
 
 instance Monoid (Options m) where
   mempty =
     Options
-      { logRequest = const id
-      , logResponse = const id
+      { handleRequest = const id
+      , handleResponse = const id
       }

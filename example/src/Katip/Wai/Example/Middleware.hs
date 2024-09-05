@@ -29,8 +29,8 @@ logRequestAndResponse =
       katipWaiOptions = Katip.Wai.defaultOptions @AppM Katip.InfoS
      in
       katipWaiOptions
-        { Katip.Wai.logRequest = \request action ->
-            Katip.Wai.logRequest katipWaiOptions request $
+        { Katip.Wai.handleRequest = \request action ->
+            Katip.Wai.handleRequest katipWaiOptions request $
               local
                 ( \appData ->
                     appData{AppData.activeRequest = Just request}
