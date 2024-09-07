@@ -11,7 +11,7 @@ module Katip.Wai
 
     -- ** Helpers
 
-    -- | Since logging with @Katip@ is monadic, we need the ability to run a
+    -- | Since logging with @Katip@ is monadic, we need the ability to run an
     -- 'Network.Wai.Application' or 'Network.Wai.Middleware' in a monad other
     -- than @IO@.
   , Middleware.ApplicationT
@@ -21,8 +21,6 @@ module Katip.Wai
     -- * Options
 
     -- | Options for customizing the way 'Middleware.middlewareCustom' handles the requests and responses.
-    --
-    -- TODO Add examples
   , Options.Options (..)
   , Options.addRequestAndResponseToContext
   , Options.logRequestAndResponse

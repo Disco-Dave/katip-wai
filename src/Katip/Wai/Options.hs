@@ -100,6 +100,26 @@ defaultIncludedHeaders =
 
 
 -- | Default formatter for 'Request's.
+--
+-- Example:
+--
+-- @
+-- {
+--    "headers": {
+--      "Host": "localhost:4000",
+--      "Referer": "http://localhost:4000/docs/",
+--      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0"
+--    },
+--    "httpVersion": "HTTP/1.1",
+--    "id": "299b188e-f695-49ee-a92f-9078a29f2ec4",
+--    "isSecure": false,
+--    "method": "GET",
+--    "path": "/openapi.json",
+--    "queryString": [],
+--    "receivedAt": "2024-09-07T18:22:50.943042066Z",
+--    "remoteHost": "127.0.0.1:58046"
+--  }
+-- @
 defaultRequestFormat :: IncludedHeaders -> Formatter Request
 defaultRequestFormat includedHeaders request =
   Aeson.object
@@ -116,6 +136,23 @@ defaultRequestFormat includedHeaders request =
 
 
 -- | Default formatter for 'Response's.
+--
+-- Example:
+--
+-- @
+-- {
+--    "headers": {},
+--    "respondedAt": "2024-09-07T18:22:50.943213512Z",
+--    "responseTime": {
+--      "time": 0.167463,
+--      "unit": "ms"
+--    },
+--    "status": {
+--      "code": 200,
+--      "message": "OK"
+--    }
+--  }
+-- @
 defaultResponseFormat :: IncludedHeaders -> TimeUnit -> Formatter Response
 defaultResponseFormat includedHeaders timeUnit response =
   Aeson.object
@@ -133,12 +170,25 @@ defaultResponseFormat includedHeaders timeUnit response =
 -- * Options
 
 
+-- | Options to customize how to handle the 'Request' and 'Response'.
+--
+-- You can use 'Monoid' to combine 'Options':
+--
+-- @
+-- mconcat
+--   [ addRequestAndResponseToContext
+--       requestFormatter
+--       responseFormatter
+--   , logRequestAndResponse severity
+--   ]
+-- @
 data Options m = Options
   { handleRequest :: forall a. Request -> m a -> m a
   , handleResponse :: forall a. Response -> m a -> m a
   }
 
 
+-- | Add the 'Request' to the 'Katip.LogContexts' under @"request"@, and add 'Response' to the 'Katip.LogContext' under @"response"@.
 addRequestAndResponseToContext :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Options m
 addRequestAndResponseToContext requestFormatter responseFormatter =
   Options
@@ -151,6 +201,7 @@ addRequestAndResponseToContext requestFormatter responseFormatter =
     }
 
 
+-- | Log @"Request received."@ when a request comes in, and log @"Response sent."@ when a response is sent back.
 logRequestAndResponse :: Katip.KatipContext m => Katip.Severity -> Options m
 logRequestAndResponse severity =
   Options
@@ -163,6 +214,8 @@ logRequestAndResponse severity =
     }
 
 
+
+-- | Combines 'addRequestAndResponseToContext' and 'logRequestAndResponse' with the formatters and severity you provide.
 options :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Katip.Severity -> Options m
 options requestFormatter responseFormatter severity =
   mconcat
@@ -173,6 +226,7 @@ options requestFormatter responseFormatter severity =
     ]
 
 
+-- | Same as 'options', but uses 'defaultRequestFormat','defaultResponseFormat', and 'Milliseconds'.
 defaultOptions :: Katip.KatipContext m => Katip.Severity -> Options m
 defaultOptions =
   options
