@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Katip.Wai.Example
+import Katip.Wai.Example qualified
 
 
 main :: IO ()

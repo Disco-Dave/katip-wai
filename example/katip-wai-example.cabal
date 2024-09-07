@@ -95,6 +95,7 @@ library
     Katip.Wai.Example.AppM
     Katip.Wai.Example.Middleware
     Katip.Wai.Example.Servant
+    Katip.Wai.Example.Short
 
 
 executable my-katip-wai-example
