@@ -32,7 +32,7 @@ jobs:
 
       - uses: haskell-actions/run-fourmolu@v9
         with:
-          version: "0.15.0.0"
+          version: "0.16.2.0"
 
   cabal:
     name: cabal ${{ matrix.cabal }} / ghc ${{ matrix.ghc }}

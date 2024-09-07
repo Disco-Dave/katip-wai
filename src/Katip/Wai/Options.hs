@@ -214,7 +214,6 @@ logRequestAndResponse severity =
     }
 
 
-
 -- | Combines 'addRequestAndResponseToContext' and 'logRequestAndResponse' with the formatters and severity you provide.
 options :: Katip.KatipContext m => Formatter Request -> Formatter Response -> Katip.Severity -> Options m
 options requestFormatter responseFormatter severity =
