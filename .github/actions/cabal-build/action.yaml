@@ -4,7 +4,7 @@ inputs:
   cabal-version:
     description: "Version of cabal to use"
     required: false
-    default: "3.10.3.0"
+    default: "3.12.1.0"
   ghc-version:
     description: "Version of ghc to use"
     required: false
