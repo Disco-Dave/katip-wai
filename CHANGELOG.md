@@ -22,7 +22,7 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 <!--   `Fixed` for any bug fixes. -->
 <!--   `Security` in case of vulnerabilities. -->
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
 
 ## [0.2.0.0] - 2024-09-11
 
