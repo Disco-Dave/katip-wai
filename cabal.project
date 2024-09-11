@@ -2,3 +2,4 @@ packages:
   katip-wai.cabal
 
 test-show-details: direct
+tests: True

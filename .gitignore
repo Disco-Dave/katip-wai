@@ -5,4 +5,5 @@ dist-newstyle/
 hackage-dist*
 stack.yaml
 stack.yaml.lock
+**/hie.yaml
 *~

@@ -1,6 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
-
-module DebugApplication
+module Katip.Wai.DebugApplication
   ( DebugApplication
   , sendNoContentRequest
   , sendLogRequest
@@ -18,11 +16,11 @@ import qualified Data.Maybe as Maybe
 import Data.Text (Text)
 import Data.Text.Encoding (decodeUtf8With, encodeUtf8)
 import Data.Text.Encoding.Error (lenientDecode)
-import DebugScribe (withDebugScribe)
 import Katip (KatipContextT, runKatipContextT)
 import qualified Katip
 import Katip.Wai (ApplicationT, runApplication)
 import qualified Katip.Wai
+import Katip.Wai.DebugScribe (withDebugScribe)
 import qualified Network.HTTP.Client as Http
 import Network.HTTP.Types.Method (Method)
 import qualified Network.HTTP.Types.Status as Status
@@ -97,7 +95,7 @@ mkApplication severity =
                   bytes <- join $ lookup "message" queryString
                   pure $ decodeUtf8With lenientDecode bytes
              in do
-                  Katip.logFM Katip.InfoS (Katip.ls message)
+                  Katip.logFM severity (Katip.ls message)
                   send $
                     Wai.responseLBS
                       (toEnum 202)

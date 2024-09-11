@@ -2,51 +2,50 @@
 
 [Middleware](https://hackage.haskell.org/package/wai-3.2.3/docs/Network-Wai.html#t:Middleware) for logging http request and response information through [Katip](https://hackage.haskell.org/package/katip). 
 
+You can find the full documentation on [Hackage](https://hackage.haskell.org/package/katip-wai/docs/Katip-Wai.html).
+
 ## Example using Servant ([./example](./example))
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
-
-module Main (main) where
-
 import Control.Exception (bracket)
-import Control.Monad.IO.Unlift (MonadUnliftIO (withRunInIO))
 import Data.Proxy (Proxy (Proxy))
-import qualified Katip
+import Katip qualified
 import Katip.Wai (ApplicationT, runApplication)
-import qualified Katip.Wai
-import qualified Network.Wai as Wai
-import qualified Network.Wai.Handler.Warp as Warp
-import qualified Servant
+import Katip.Wai qualified
+import Network.Wai.Handler.Warp qualified as Warp
+import Servant qualified
 import System.IO (stdout)
+import UnliftIO (MonadUnliftIO (withRunInIO))
+
 
 type Api = Servant.GetNoContent
+
 
 server :: Servant.ServerT Api (Katip.KatipContextT Servant.Handler)
 server = do
   Katip.logLocM Katip.InfoS "This message should also have the request context"
   pure Servant.NoContent
 
+
 mkApplication :: ApplicationT (Katip.KatipContextT IO)
-mkApplication = Katip.Wai.middleware Katip.InfoS $ \request send -> do
+mkApplication = Katip.Wai.middleware Katip.InfoS $ request send -> do
   logEnv <- Katip.getLogEnv
   context <- Katip.getKatipContext
   namespace <- Katip.getKatipNamespace
 
   let hoistedApp =
         let proxy = Proxy @Api
-            toHandler = Katip.runKatipContextT logEnv context namespace
-            hoistedServer = Servant.hoistServer proxy toHandler server
+            hoistedServer = Servant.hoistServer proxy (Katip.runKatipContextT logEnv context namespace) server
          in Servant.serve proxy hoistedServer
 
-  withRunInIO $ \toIO -> hoistedApp request (toIO . send)
+  withRunInIO $ toIO -> hoistedApp request (toIO . send)
+
 
 withLogEnv :: (Katip.LogEnv -> IO a) -> IO a
 withLogEnv useLogEnv = do
   handleScribe <-
     Katip.mkHandleScribeWithFormatter
-      Katip.bracketFormat
-      (Katip.ColorLog True)
+      Katip.jsonFormat
+      (Katip.ColorLog False)
       stdout
       (Katip.permitItem minBound)
       Katip.V3
@@ -57,18 +56,18 @@ withLogEnv useLogEnv = do
 
   bracket makeLogEnv Katip.closeScribes useLogEnv
 
+
 main :: IO ()
-main = withLogEnv $ \logEnv ->
-  let toIO = Katip.runKatipContextT logEnv () "main"
-      app = runApplication toIO mkApplication
-   in Warp.run 5555 app
+main = withLogEnv $ logEnv ->
+  let
+    app = runApplication (Katip.runKatipContextT logEnv () "main") mkApplication
+   in
+    Warp.run 5555 app
 ```
 
 ## Example output
 ```
-[2021-12-22 19:16:17][example-app.main][Info][compe][PID 559366][ThreadId 23][request.bodyLength:KnownLength 0][request.path:][request.remoteHost:127.0.0.1:40500][request.headers.range:null][request.headers.userAgent:curl/7.80.0][request.headers.host:localhost:5555][request.headers.referer:null][request.method:GET][request.Version:HTTP/1.1][request.isSecure:False][request.id:0d5e7c47-816f-402b-914a-9d6923b99508] Request received
-[2021-12-22 19:16:17][example-app.main][Info][compe][PID 559366][ThreadId 23][request.bodyLength:KnownLength 0][request.path:][request.remoteHost:127.0.0.1:40500][request.headers.range:null][request.headers.userAgent:curl/7.80.0][request.headers.host:localhost:5555][request.headers.referer:null][request.method:GET][request.Version:HTTP/1.1][request.isSecure:False][request.id:0d5e7c47-816f-402b-914a-9d6923b99508][main:Main Main.hs:21:3] This message should also have the request context
-[2021-12-22 19:16:17][example-app.main][Info][compe][PID 559366][ThreadId 23][response.status:204][response.elapsedTimeInNanoSeconds:205439][request.bodyLength:KnownLength 0][request.path:][request.remoteHost:127.0.0.1:40500][request.headers.range:null][request.headers.userAgent:curl/7.80.0][request.headers.host:localhost:5555][request.headers.referer:null][request.method:GET][request.Version:HTTP/1.1][request.isSecure:False][request.id:0d5e7c47-816f-402b-914a-9d6923b99508] Response sent
-[2021-12-22 19:17:22][example-app.main][Info][compe][PID 560230][ThreadId 23][request.bodyLength:KnownLength 0][request.path:some/path][request.remoteHost:127.0.0.1:40502][request.headers.range:null][request.headers.userAgent:curl/7.80.0][request.headers.host:localhost:5555][request.headers.referer:null][request.method:GET][request.Version:HTTP/1.1][request.isSecure:False][request.id:b30f962e-32ff-4c05-9c5f-b60f487ea886] Request received
-[2021-12-22 19:17:22][example-app.main][Info][compe][PID 560230][ThreadId 23][response.status:404][response.elapsedTimeInNanoSeconds:280937][request.bodyLength:KnownLength 0][request.path:some/path][request.remoteHost:127.0.0.1:40502][request.headers.range:null][request.headers.userAgent:curl/7.80.0][request.headers.host:localhost:5555][request.headers.referer:null][request.method:GET][request.Version:HTTP/1.1][request.isSecure:False][request.id:b30f962e-32ff-4c05-9c5f-b60f487ea886] Response sent
+{"app":["example-app"],"at":"2024-09-07T18:44:10.411097829Z","data":{"request":{"headers":{Host:"localhost:5555","User-Agent":"curl8.9.1"},"httpVersion":"HTTP1.1","id":"7ec0fbc4-722c-4c70-a168-c2abe5c7b4fa","isSecure":false,"method":GET,"path":"/","queryString":[],"receivedAt":"2024-09-07T18:44:10.411057334Z","remoteHost":"127.0.0.1:51230"}},"env":"local-dev","host":"x1g11","loc":null,"msg":"Request received.","ns":["example-app","main"],"pid":"106249","sev":Info,"thread":"27"}
+{"app":["example-app"],"at":"2024-09-07T18:44:10.411097829Z","data":{"request":{"headers":{Host:"localhost:5555","User-Agent":"curl8.9.1"},"httpVersion":"HTTP1.1","id":"7ec0fbc4-722c-4c70-a168-c2abe5c7b4fa","isSecure":false,"method":GET,"path":"","queryString":[],"receivedAt":"2024-09-07T18:44:10.411057334Z","remoteHost":"127.0.0.1:51230"}},"env":"local-dev","host":"x1g11","loc":{"loc_col":3,"loc_fn":"srcKatipWaiExample/Short.hs","loc_ln":19,"loc_mod":Katip.Wai.Example.Short,"loc_pkg":"my-katip-wai-example-0.1.0.0-inplace"},"msg":"This message should also have the request context","ns":["example-app","main"],"pid":"106249","sev":Info,"thread":"27"}
+{"app":["example-app"],"at":"2024-09-07T18:44:10.411097829Z","data":{"request":{"headers":{Host:"localhost:5555","User-Agent":"curl8.9.1"},"httpVersion":"HTTP1.1","id":"7ec0fbc4-722c-4c70-a168-c2abe5c7b4fa","isSecure":false,"method":GET,"path":"/","queryString":[],"receivedAt":"2024-09-07T18:44:10.411057334Z","remoteHost":"127.0.0.1:51230"},"response":{"headers":{},"respondedAt":"2024-09-07T18:44:10.411199014Z","responseTime":{"time":0.137369,"unit":"ms"},"status":{"code":204,"message":"No Content"}}},"env":"local-dev","host":"x1g11","loc":null,"msg":"Response sent.","ns":["example-app","main"],"pid":"106249","sev":Info,"thread":"27"}
 ```

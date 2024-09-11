@@ -1,17 +1,14 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
-
-module Main (main) where
+module Katip.Wai.Example.Short (main) where
 
 import Control.Exception (bracket)
-import Control.Monad.IO.Unlift (MonadUnliftIO (withRunInIO))
 import Data.Proxy (Proxy (Proxy))
-import qualified Katip
+import Katip qualified
 import Katip.Wai (ApplicationT, runApplication)
-import qualified Katip.Wai
-import qualified Network.Wai.Handler.Warp as Warp
-import qualified Servant
+import Katip.Wai qualified
+import Network.Wai.Handler.Warp qualified as Warp
+import Servant qualified
 import System.IO (stdout)
+import UnliftIO (MonadUnliftIO (withRunInIO))
 
 
 type Api = Servant.GetNoContent
@@ -31,8 +28,7 @@ mkApplication = Katip.Wai.middleware Katip.InfoS $ \request send -> do
 
   let hoistedApp =
         let proxy = Proxy @Api
-            toHandler = Katip.runKatipContextT logEnv context namespace
-            hoistedServer = Servant.hoistServer proxy toHandler server
+            hoistedServer = Servant.hoistServer proxy (Katip.runKatipContextT logEnv context namespace) server
          in Servant.serve proxy hoistedServer
 
   withRunInIO $ \toIO -> hoistedApp request (toIO . send)
@@ -42,8 +38,8 @@ withLogEnv :: (Katip.LogEnv -> IO a) -> IO a
 withLogEnv useLogEnv = do
   handleScribe <-
     Katip.mkHandleScribeWithFormatter
-      Katip.bracketFormat
-      (Katip.ColorLog True)
+      Katip.jsonFormat
+      (Katip.ColorLog False)
       stdout
       (Katip.permitItem minBound)
       Katip.V3
@@ -57,6 +53,7 @@ withLogEnv useLogEnv = do
 
 main :: IO ()
 main = withLogEnv $ \logEnv ->
-  let toIO = Katip.runKatipContextT logEnv () "main"
-      app = runApplication toIO mkApplication
-   in Warp.run 5555 app
+  let
+    app = runApplication (Katip.runKatipContextT logEnv () "main") mkApplication
+   in
+    Warp.run 5555 app

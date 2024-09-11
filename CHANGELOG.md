@@ -22,7 +22,25 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 <!--   `Fixed` for any bug fixes. -->
 <!--   `Security` in case of vulnerabilities. -->
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
+
+## [0.2.0.0] - 2024-09-11
+
+### Added
+
+- Added a `Request` type that contains all the info about a request including its trace id.
+- Added a `Response` type that contains info about a response, including how long it took the server to respond.
+- `traceRequest` to convert from a `Network.Wai.Request` to a `Request`.
+- `traceResponse` to convert from a `Network.Wai.Response` to a `Response`.
+- Added the `Options` type, which provides more flexibility to customize how the request and response are handled.
+- Added more formatting options for both the request and response.
+- Added `middlewareCustom` for full customization.
+
+### Changed
+- The default formats used by `middleware` have been changed. See `defaultRequestFormat` and `defaultResponseFormat` for the new formats.
+
+### Removed
+- `middlewareWithFormatter` has been removed. Please use `middlewareCustom` instead.
 
 ## [0.1.2.4] - 2024-05-16
 
@@ -78,7 +96,8 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 - Initial release
 
 
-[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.4...HEAD
+[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.2.0.0...HEAD
+[0.2.0.0]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.4...releases/0.2.0.0
 [0.1.2.4]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.3...releases/0.1.2.4
 [0.1.2.3]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.2...releases/0.1.2.3
 [0.1.2.2]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.1...releases/0.1.2.2

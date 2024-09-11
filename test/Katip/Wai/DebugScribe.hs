@@ -1,6 +1,4 @@
-{-# LANGUAGE RankNTypes #-}
-
-module DebugScribe
+module Katip.Wai.DebugScribe
   ( withDebugScribe
   )
 where
@@ -13,6 +11,7 @@ import qualified Data.Aeson as Aeson
 import qualified Katip
 
 
+-- | Collect all logs in memory and return a list of the json encoded logs when closed.
 withDebugScribe :: Katip.PermitFunc -> Katip.Verbosity -> (Katip.Scribe -> IO a) -> IO [Aeson.Value]
 withDebugScribe permitFunc verbosity useScribe = do
   queue <- STM.newTQueueIO

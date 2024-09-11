@@ -1,19 +1,16 @@
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StrictData #-}
-
 module Katip.WaiSpec (spec) where
 
 import Data.Foldable (for_)
+import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.UUID as Uuid
-import DebugApplication (withDebugApplication)
-import qualified DebugApplication
 import qualified Katip
-import LogEntry (LogEntry (LogEntry))
-import qualified LogEntry
+import Katip.Wai.DebugApplication (withDebugApplication)
+import qualified Katip.Wai.DebugApplication as DebugApplication
+import Katip.Wai.LogEntry (LogEntry (LogEntry))
+import qualified Katip.Wai.LogEntry as LogEntry
 import qualified Network.HTTP.Client as Http
 import Test.Hspec (Spec, describe, it, runIO, shouldBe, shouldSatisfy)
 
@@ -44,21 +41,15 @@ spec = describe "middleware" $ do
               , remoteHost = "127.0.0.1:1234"
               , isSecure = False
               , method = "GET"
-              , path = "log"
+              , path = "/log"
               , queryString = [("message", Just message)]
-              , bodyLength = "KnownLength 0"
-              , headers =
-                  LogEntry.Headers
-                    { host = Just "localhost:1234"
-                    , referer = Nothing
-                    , userAgent = Nothing
-                    , range = Nothing
-                    }
+              , headers = Map.empty
+              , receivedAt = "dont care"
               }
 
       let expectedLog1 =
             LogEntry
-              { logMessage = "Request received"
+              { logMessage = "Request received."
               , logData =
                   LogEntry.LogData
                     { response = Nothing
@@ -78,23 +69,29 @@ spec = describe "middleware" $ do
               }
           expectedLog3 =
             LogEntry
-              { logMessage = "Response sent"
+              { logMessage = "Response sent."
               , logData =
                   LogEntry.LogData
                     { response =
-                        Just $
+                        Just
                           LogEntry.Response
-                            { elapsedTimeInNanoSeconds = 123
-                            , status = 202
+                            { status = LogEntry.Status 202 "Accepted"
+                            , headers = Map.empty
+                            , respondedAt = "dont care"
+                            , responseTime =
+                                LogEntry.ResponseTime
+                                  { unit = "dont care"
+                                  , time = 0
+                                  }
                             }
                     , LogEntry.request = Just expectedRequest
                     }
               , logSeverity = severity
               }
 
-      log1 `shouldSatisfy` LogEntry.isMostlySameAs expectedLog1
-      log2 `shouldSatisfy` LogEntry.isMostlySameAs expectedLog2
-      log3 `shouldSatisfy` LogEntry.isMostlySameAs expectedLog3
+      log1 `LogEntry.shouldBe` expectedLog1
+      log2 `LogEntry.shouldBe` expectedLog2
+      log3 `LogEntry.shouldBe` expectedLog3
 
     it ("logs as " <> prettySeverity <> " and uses a different requestId for every request") $ do
       logs <- withDebugApplication severity $ \debugApp ->
@@ -131,7 +128,7 @@ spec = describe "middleware" $ do
       let elapsedTimes =
             flip Maybe.mapMaybe parsedLogs $ \entry -> do
               response <- LogEntry.response $ LogEntry.logData entry
-              pure $ LogEntry.elapsedTimeInNanoSeconds response
+              pure . LogEntry.time $ LogEntry.responseTime response
 
       length elapsedTimes `shouldBe` 15
 

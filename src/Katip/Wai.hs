@@ -1,222 +1,122 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE StrictData #-}
-
--- |
--- Description: Middleware for logging request and response info through Katip.
+-- | Add information about the 'Network.Wai.Request', 'Network.Wai.Response',
+-- and the response time to Katip's 'Katip.LogContexts'.
 --
--- Add information about 'Wai.Request', 'Wai.Response', and the elapsed time to Katip's 'Katip.LogContexts'.
+-- Example setup:
 --
--- The following is added to the context as \"response\":
+-- @
+-- import Control.Exception (bracket)
+-- import Data.Proxy (Proxy (Proxy))
+-- import Katip qualified
+-- import Katip.Wai (ApplicationT, runApplication)
+-- import Katip.Wai qualified
+-- import Network.Wai.Handler.Warp qualified as Warp
+-- import Servant qualified
+-- import System.IO (stdout)
+-- import UnliftIO (MonadUnliftIO (withRunInIO))
 --
---   - \"elapsedTimeInNanoSeconds\": Amount of time from receiving the request to sending the response in nano seconds.
 --
---   - \"status\": The status of the response, ie. 200, 202, 204, 400, 404, 500, etc.
+-- type Api = Servant.GetNoContent
+--
+--
+-- server :: Servant.ServerT Api (Katip.KatipContextT Servant.Handler)
+-- server = do
+--   Katip.logLocM Katip.InfoS "This message should also have the request context"
+--   pure Servant.NoContent
+--
+--
+-- mkApplication :: ApplicationT (Katip.KatipContextT IO)
+-- mkApplication = Katip.Wai.middleware Katip.InfoS $ \request send -> do
+--   logEnv <- Katip.getLogEnv
+--   context <- Katip.getKatipContext
+--   namespace <- Katip.getKatipNamespace
+--
+--   let hoistedApp =
+--         let proxy = Proxy @Api
+--             hoistedServer = Servant.hoistServer proxy (Katip.runKatipContextT logEnv context namespace) server
+--          in Servant.serve proxy hoistedServer
+--
+--   withRunInIO $ \toIO -> hoistedApp request (toIO . send)
+--
+--
+-- withLogEnv :: (Katip.LogEnv -> IO a) -> IO a
+-- withLogEnv useLogEnv = do
+--   handleScribe <-
+--     Katip.mkHandleScribeWithFormatter
+--       Katip.jsonFormat
+--       (Katip.ColorLog False)
+--       stdout
+--       (Katip.permitItem minBound)
+--       Katip.V3
+--
+--   let makeLogEnv =
+--         Katip.initLogEnv "example-app" "local-dev"
+--           >>= Katip.registerScribe "stdout" handleScribe Katip.defaultScribeSettings
+--
+--   bracket makeLogEnv Katip.closeScribes useLogEnv
+--
+--
+-- main :: IO ()
+-- main = withLogEnv $ \logEnv ->
+--   let
+--     app = runApplication (Katip.runKatipContextT logEnv () "main") mkApplication
+--    in
+--     Warp.run 5555 app
+-- @
+--
+-- Example output:
+--
+-- @
+-- {"app":["example-app"],"at":"2024-09-07T18:44:10.411097829Z","data":{"request":{"headers":{"Host":"localhost:5555","User-Agent":"curl/8.9.1"},"httpVersion":"HTTP/1.1","id":"7ec0fbc4-722c-4c70-a168-c2abe5c7b4fa","isSecure":false,"method":"GET","path":"/","queryString":[],"receivedAt":"2024-09-07T18:44:10.411057334Z","remoteHost":"127.0.0.1:51230"}},"env":"local-dev","host":"x1g11","loc":null,"msg":"Request received.","ns":["example-app","main"],"pid":"106249","sev":"Info","thread":"27"}
+-- {"app":["example-app"],"at":"2024-09-07T18:44:10.411097829Z","data":{"request":{"headers":{"Host":"localhost:5555","User-Agent":"curl/8.9.1"},"httpVersion":"HTTP/1.1","id":"7ec0fbc4-722c-4c70-a168-c2abe5c7b4fa","isSecure":false,"method":"GET","path":"/","queryString":[],"receivedAt":"2024-09-07T18:44:10.411057334Z","remoteHost":"127.0.0.1:51230"}},"env":"local-dev","host":"x1g11","loc":{"loc_col":3,"loc_fn":"src/Katip/Wai/Example/Short.hs","loc_ln":19,"loc_mod":"Katip.Wai.Example.Short","loc_pkg":"my-katip-wai-example-0.1.0.0-inplace"},"msg":"This message should also have the request context","ns":["example-app","main"],"pid":"106249","sev":"Info","thread":"27"}
+-- {"app":["example-app"],"at":"2024-09-07T18:44:10.411097829Z","data":{"request":{"headers":{"Host":"localhost:5555","User-Agent":"curl/8.9.1"},"httpVersion":"HTTP/1.1","id":"7ec0fbc4-722c-4c70-a168-c2abe5c7b4fa","isSecure":false,"method":"GET","path":"/","queryString":[],"receivedAt":"2024-09-07T18:44:10.411057334Z","remoteHost":"127.0.0.1:51230"},"response":{"headers":{},"respondedAt":"2024-09-07T18:44:10.411199014Z","responseTime":{"time":0.137369,"unit":"ms"},"status":{"code":204,"message":"No Content"}}},"env":"local-dev","host":"x1g11","loc":null,"msg":"Response sent.","ns":["example-app","main"],"pid":"106249","sev":"Info","thread":"27"}
+-- @
 module Katip.Wai
   ( -- * Middleware
-    defaultFormat
-  , middlewareWithFormatter
-  , middleware
 
-    -- * Helpers for threading Katip's Context throughout the entire 'Wai.Application`
-  , ApplicationT
-  , MiddlewareT
-  , runApplication
+    -- | 'Network.Wai.Middleware' for logging request and response information.
+    Middleware.middleware
+  , Middleware.middlewareCustom
+
+    -- ** Helpers
+
+    -- | Since logging with @Katip@ is monadic, we need the ability to run an
+    -- 'Network.Wai.Application' or 'Network.Wai.Middleware' in a monad other
+    -- than @IO@.
+  , Middleware.ApplicationT
+  , Middleware.MiddlewareT
+  , Middleware.runApplication
+
+    -- * Options
+
+    -- | Options for customizing the way 'Middleware.middlewareCustom' handles the requests and responses.
+  , Options.Options (..)
+  , Options.addRequestAndResponseToContext
+  , Options.logRequestAndResponse
+  , Options.options
+  , Options.defaultOptions
+
+    -- ** Formatting
+
+    -- | Functions for formatting the 'Request.Request's and 'Response.Response's.
+  , Options.Formatter
+  , Options.TimeUnit (..)
+  , Options.IncludedHeaders
+  , Options.defaultIncludedHeaders
+  , Options.defaultRequestFormat
+  , Options.defaultResponseFormat
+
+    -- * Request
+  , Request.Request (..)
+  , Request.traceRequest
+
+    -- * Response
+  , Response.Response (..)
+  , Response.traceResponse
   )
 where
 
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Aeson ((.=))
-import qualified Data.Aeson as Aeson
-import Data.ByteString (ByteString)
-import Data.Text (Text)
-import qualified Data.Text as Text
-import Data.Text.Encoding (decodeUtf8With)
-import Data.Text.Encoding.Error (lenientDecode)
-import Data.UUID (UUID)
-import qualified Data.UUID as UUID
-import qualified Data.UUID.V4 as UUID.V4
-import qualified Katip
-import Network.HTTP.Types (Method)
-import Network.HTTP.Types.Status (Status)
-import Network.HTTP.Types.URI (Query, queryToQueryText)
-import Network.HTTP.Types.Version (HttpVersion)
-import Network.Socket (SockAddr)
-import qualified Network.Wai as Wai
-import qualified System.Clock as Clock
+import qualified Katip.Wai.Middleware as Middleware
+import qualified Katip.Wai.Options as Options
+import qualified Katip.Wai.Request as Request
+import qualified Katip.Wai.Response as Response
 
-
-data Request = Request
-  { requestId :: UUID
-  , requestHttpVersion :: HttpVersion
-  , requestRemoteHost :: SockAddr
-  , requestIsSecure :: Bool
-  , requestMethod :: Method
-  , requestPathInfo :: [Text]
-  , requestQueryString :: Query
-  , requestBodyLength :: Wai.RequestBodyLength
-  , requestHeaderHost :: Maybe ByteString
-  , requestHeaderReferer :: Maybe ByteString
-  , requestHeaderUserAgent :: Maybe ByteString
-  , requestHeaderRange :: Maybe ByteString
-  }
-
-#if MIN_VERSION_aeson(2,2,0)
-requestToKeyValues :: Aeson.KeyValue e kv => Request -> [kv]
-#else
-requestToKeyValues :: Aeson.KeyValue kv => Request -> [kv]
-#endif
-
-
-requestToKeyValues Request{..} =
-  let toText = decodeUtf8With lenientDecode
-      headers =
-        Aeson.object
-          [ "host" .= fmap toText requestHeaderHost
-          , "referer" .= fmap toText requestHeaderReferer
-          , "userAgent" .= fmap toText requestHeaderUserAgent
-          , "range" .= fmap toText requestHeaderRange
-          ]
-   in [ "id" .= UUID.toText requestId
-      , "httpVersion" .= show requestHttpVersion
-      , "remoteHost" .= show requestRemoteHost
-      , "isSecure" .= requestIsSecure
-      , "method" .= toText requestMethod
-      , "path" .= Text.intercalate "/" requestPathInfo
-      , "queryString" .= queryToQueryText requestQueryString
-      , "bodyLength" .= show requestBodyLength
-      , "headers" .= headers
-      ]
-
-
-instance Aeson.ToJSON Request where
-  toJSON = Aeson.object . requestToKeyValues
-  toEncoding = Aeson.pairs . mconcat . requestToKeyValues
-
-
--- | Default format for the request. The requestId will be unique every time we
--- call this function, it's an id to correlate logs generated by the request.
---
--- Current format:
---
---  - \"id\": Uniquely generated string that can be used to correlate logs to a single request.
---
---  - \"httpVersion\": Version of the request.
---
---  - \"remoteHost\": Address the request came from.
---
---  - \"isSecure\": True if the request was made over an SSL connection, otherwise false.
---
---  - \"method\": HTTP Method used for the request, ie. GET, POST, PUT, PATCH, DELETE, etc.
---
---  - \"path\": URL without a hostname, port, or querystring.
---
---  - \"queryString\": Query string of the request if one was sent.
---
---  - \"bodyLength\": Size of the body in the request.
---
---  - \"headers.host\": Value of the \"Host\" header.
---
---  - \"headers.referer\": Value of the \"Referer\" header.
---
---  - \"headers.userAgent\": Value of the \"User-Agent\" header.
---
---  - \"headers.range\": Value of the \"Range\" header.
-defaultFormat :: UUID -> Wai.Request -> Aeson.Value
-defaultFormat requestId request =
-  Aeson.toJSON $
-    Request
-      { requestId = requestId
-      , requestHttpVersion = Wai.httpVersion request
-      , requestRemoteHost = Wai.remoteHost request
-      , requestIsSecure = Wai.isSecure request
-      , requestMethod = Wai.requestMethod request
-      , requestPathInfo = Wai.pathInfo request
-      , requestQueryString = Wai.queryString request
-      , requestBodyLength = Wai.requestBodyLength request
-      , requestHeaderHost = Wai.requestHeaderHost request
-      , requestHeaderReferer = Wai.requestHeaderReferer request
-      , requestHeaderUserAgent = Wai.requestHeaderUserAgent request
-      , requestHeaderRange = Wai.requestHeaderRange request
-      }
-
-
-data Response = Response
-  { responseElapsedTime :: Clock.TimeSpec
-  , responseStatus :: Status
-  }
-
-#if MIN_VERSION_aeson(2,2,0)
-responseToKeyValues :: Aeson.KeyValue e kv => Response -> [kv]
-#else
-responseToKeyValues :: Aeson.KeyValue kv => Response -> [kv]
-#endif
-
-
-responseToKeyValues Response{..} =
-  [ "elapsedTimeInNanoSeconds" .= Clock.toNanoSecs responseElapsedTime
-  , "status" .= fromEnum responseStatus
-  ]
-
-
-instance Aeson.ToJSON Response where
-  toJSON = Aeson.object . responseToKeyValues
-  toEncoding = Aeson.pairs . mconcat . responseToKeyValues
-
-
--- | Just like 'Wai.Application' except it runs in @m@ instead of 'IO'
-type ApplicationT m = Wai.Request -> (Wai.Response -> m Wai.ResponseReceived) -> m Wai.ResponseReceived
-
-
--- | Converts an 'ApplicationT' to a normal 'Wai.Application'
-runApplication :: MonadIO m => (forall a. m a -> IO a) -> ApplicationT m -> Wai.Application
-runApplication toIO application request send =
-  toIO $ application request (liftIO . send)
-
-
--- | Just like 'Wai.Middleware' except it runs in @m@ instead of 'IO'
-type MiddlewareT m = ApplicationT m -> ApplicationT m
-
-
-withLoggedResponse
-  :: Katip.KatipContext m
-  => Katip.Severity
-  -> Clock.TimeSpec
-  -> (Wai.Response -> m Wai.ResponseReceived)
-  -> Wai.Response
-  -> m Wai.ResponseReceived
-withLoggedResponse severity start send response = do
-  responseReceived <- send response
-
-  end <- liftIO $ Clock.getTime Clock.Monotonic
-
-  let loggableResponse =
-        Response
-          { responseElapsedTime = end `Clock.diffTimeSpec` start
-          , responseStatus = Wai.responseStatus response
-          }
-
-  Katip.katipAddContext (Katip.sl "response" loggableResponse) $ do
-    Katip.logFM severity "Response sent"
-    pure responseReceived
-
-
--- | Logs the request using the provided format, response, and elapsed time in Katip's context
-middlewareWithFormatter :: Katip.KatipContext m => (UUID -> Wai.Request -> Aeson.Value) -> Katip.Severity -> MiddlewareT m
-middlewareWithFormatter format severity application request send = do
-  start <- liftIO $ Clock.getTime Clock.Monotonic
-  requestId <- liftIO UUID.V4.nextRandom
-
-  let jsonRequest = format requestId request
-
-  Katip.katipAddContext (Katip.sl "request" jsonRequest) $ do
-    Katip.logFM severity "Request received"
-    application request (withLoggedResponse severity start send)
-
-
--- | Logs the request, response, and elapsed time in Katip's context
-middleware :: Katip.KatipContext m => Katip.Severity -> MiddlewareT m
-middleware =
-  middlewareWithFormatter defaultFormat
