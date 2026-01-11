@@ -17,7 +17,7 @@ jobs:
       - name: "Set up hlint"
         uses: haskell/actions/hlint-setup@v2
         with:
-          version: "3.8"
+          version: "3.10"
 
       - name: "Run hlint"
         uses: haskell/actions/hlint-run@v2
@@ -32,7 +32,7 @@ jobs:
 
       - uses: haskell-actions/run-fourmolu@v9
         with:
-          version: "0.16.2.0"
+          version: "0.19.0.1"
 
   cabal:
     name: cabal ${{ matrix.cabal }} / ghc ${{ matrix.ghc }}
@@ -40,12 +40,12 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-latest"]
-        cabal: ["3.12.1.0"]
+        cabal: ["3.16.1.0"]
         ghc:
-          - "9.4.8"
-          - "9.6.6"
-          - "9.8.2"
-          - "9.10.1"
+          - "9.8.4"
+          - "9.10.3"
+          - "9.12.2"
+
     steps:
       - uses: actions/checkout@v4
 
@@ -61,10 +61,10 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-latest"]
-        stack: ["3.1.1"]
+        stack: ["3.7.1"]
         resolver:
-          - "lts-21"
-          - "lts-22"
+          - "lts-23"
+          - "lts-24"
           - "nightly"
     steps:
       - uses: actions/checkout@v4
@@ -91,8 +91,8 @@ jobs:
         id: setup-haskell-cabal
         name: Setup Haskell and Cabal
         with:
-          ghc-version: "9.8.2"
-          cabal-version: "3.12.1.0"
+          ghc-version: "9.8.4"
+          cabal-version: "3.16.1.0"
 
       - name: Freeze
         run: |

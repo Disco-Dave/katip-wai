@@ -24,6 +24,11 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 <!-- ## [Unreleased] -->
 
+## [0.2.0.1] - 2026-01-11
+
+### Fixed
+- Increased upper bound for `time` and `containers`
+
 ## [0.2.0.0] - 2024-09-11
 
 ### Added
@@ -96,7 +101,8 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 - Initial release
 
 
-[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.2.0.0...HEAD
+[unreleased]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.2.0.1...HEAD
+[0.2.0.1]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.2.0.0...releases/0.2.0.1
 [0.2.0.0]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.4...releases/0.2.0.0
 [0.1.2.4]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.3...releases/0.1.2.4
 [0.1.2.3]: https://github.com/Disco-Dave/katip-wai/compare/releases/0.1.2.2...releases/0.1.2.3

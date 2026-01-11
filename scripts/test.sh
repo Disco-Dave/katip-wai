@@ -5,7 +5,7 @@ set -e
 repo_path="$(realpath "$0" | xargs dirname | xargs dirname)"
 cd "$repo_path"
 
-ghc_versions=("9.6" "9.8" "9.10")
+ghc_versions=("9.8" "9.10" "9.12")
 
 cabal update
 
@@ -15,7 +15,7 @@ for ghc_version in "${ghc_versions[@]}"; do
   cabal test --with-compiler="ghc-${ghc_version}" -O0 --flags pedantic all
 done
 
-resolvers=("lts-21" "lts-22" "nightly")
+resolvers=("lts-23" "lts-24" "nightly")
 
 for resolver in "${resolvers[@]}"; do
   rm -rf stack.yaml stack.yaml.lock .stack-work
